@@ -341,7 +341,7 @@
 
     ctx.font = '15px "Press Start 2P"';
     ctx.fillText(`SCORE  ${score}`, cx, cy - 5);
-    ctx.fillText(`BEST   ${best}`,  cx, cy + 30);
+    ctx.fillText(`HIGHSCORE  ${best}`,  cx, cy + 30);
 
     ctx.font      = '11px "Press Start 2P"';
     ctx.fillStyle = '#FFD700';
