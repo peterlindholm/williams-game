@@ -562,6 +562,46 @@
     ctx.fillRect(p.x - capOvr, bTop, PIPE_WIDTH + capOvr * 2, capH);
     ctx.fillStyle = 'rgba(255,255,255,0.15)';
     ctx.fillRect(p.x + 6, bTop + capH, 10, H - bTop - capH);
+
+    // 👀 Wiggle eyes on both caps
+    const cx   = p.x + PIPE_WIDTH / 2;
+    const eyeR = capH * 0.38;
+    const gap2 = eyeR * 1.1;
+    // Pupils wiggle using sin/cos — each pipe wiggles slightly differently
+    const seed  = p.index * 1.7;
+    const pxOff = Math.cos(frame * 0.12 + seed) * eyeR * 0.38;
+    const pyOff = Math.sin(frame * 0.09 + seed) * eyeR * 0.38;
+
+    drawWiggleEyes(cx, p.gapTop - capH / 2, eyeR, gap2, pxOff, pyOff); // top pipe cap
+    drawWiggleEyes(cx, bTop + capH / 2,     eyeR, gap2, pxOff, pyOff); // bottom pipe cap
+  }
+
+  function drawWiggleEyes(cx, cy, eyeR, gap, pxOff, pyOff) {
+    for (const ex of [cx - gap, cx + gap]) {
+      // White
+      ctx.beginPath();
+      ctx.arc(ex, cy, eyeR, 0, Math.PI * 2);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Pupil (wiggles inside the white)
+      const pupilR = eyeR * 0.48;
+      const px = Math.max(ex - eyeR + pupilR, Math.min(ex + eyeR - pupilR, ex + pxOff));
+      const py = Math.max(cy - eyeR + pupilR, Math.min(cy + eyeR - pupilR, cy + pyOff));
+      ctx.beginPath();
+      ctx.arc(px, py, pupilR, 0, Math.PI * 2);
+      ctx.fillStyle = '#111';
+      ctx.fill();
+
+      // Glare dot
+      ctx.beginPath();
+      ctx.arc(px - pupilR * 0.3, py - pupilR * 0.3, pupilR * 0.25, 0, Math.PI * 2);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+    }
   }
 
   // ─── Loop ──────────────────────────────────────────────────────────────────
