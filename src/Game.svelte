@@ -350,9 +350,11 @@
     ctx.font      = 'bold 26px sans-serif';
     ctx.fillText('Emoji Jumpers', cx, cy - 120);
 
-    const isDrowned  = deathCause === 'water';
-    const deathText  = isDrowned ? 'YOU DROWNED' : 'GAME OVER';
-    const deathColor = isDrowned ? '#29B6F6'      : 'white';
+    const isDrowned    = deathCause === 'water';
+    const fishers      = new Set(['🐧', '🦆']); // these look for fish instead
+    const waterMessage = fishers.has(selectedEmoji) ? 'NO FISH HERE' : 'YOU DROWNED';
+    const deathText    = isDrowned ? waterMessage : 'GAME OVER';
+    const deathColor   = isDrowned ? '#29B6F6'    : 'white';
     ctx.fillStyle = deathColor;
     ctx.font      = '28px "Press Start 2P"';
     ctx.fillText(deathText, cx, cy - 65);
