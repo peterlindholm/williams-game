@@ -169,9 +169,20 @@
     ctx.restore();
 
     // Score (top centre — only while playing or after death)
-    // Each digit cycles: red → yellow → blue → red → …
+    // Each digit has a fixed colour based on its value 0–9
     if (gameState !== 'start') {
-      const digitColors = ['#E53935', '#FDD835', '#1E88E5'];
+      const digitColors = {
+        '0': '#9E9E9E', // grey
+        '1': '#E53935', // red
+        '2': '#FDD835', // yellow
+        '3': '#1E88E5', // blue
+        '4': '#8E24AA', // purple
+        '5': '#43A047', // green
+        '6': '#212121', // black (dark, needs strong outline)
+        '7': '#FB8C00', // orange
+        '8': '#6D4C41', // brown
+        '9': '#F5F5F5', // white (needs strong outline)
+      };
       const digits = String(score).split('');
 
       ctx.font         = '28px "Press Start 2P"';
@@ -188,7 +199,7 @@
         ctx.strokeStyle = 'rgba(0,0,0,0.55)';
         ctx.lineWidth   = 5;
         ctx.strokeText(digit, x, 18);
-        ctx.fillStyle = digitColors[i % 3];
+        ctx.fillStyle = digitColors[digit];
         ctx.fillText(digit, x, 18);
         x += spacing;
       });
