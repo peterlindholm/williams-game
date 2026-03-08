@@ -44,9 +44,9 @@
   ];
 
   const EMOJI_NAMES = {
-    '🦤':'Dodo',  '🐦':'Fugl',   '🐧':'Pingvin', '🦅':'Ørn',
-    '🦆':'Albert',   '🦜':'Papegøje','🐸':'Frø',     '🐉':'Drage',
-    '🦄':'Enhjørning','🐱':'Kat', '🐶':'Hund',    '🚀':'Raket',
+    '🦤':'Dodo',    '🐦':'Bird',   '🐧':'Penguin', '🦅':'Eagle',
+    '🦆':'Albert',  '🦜':'Parrot', '🐸':'Frog',    '🐉':'Dragon',
+    '🦄':'Unicorn', '🐱':'Cat',    '🐶':'Dog',      '🚀':'Rocket',
   };
 
   // Per-emoji overrides: some need a pre-rotation and/or no horizontal flip
