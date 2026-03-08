@@ -323,7 +323,7 @@
     ctx.fillStyle    = 'rgba(255,255,255,0.85)';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('CHOOSE CHARACTER', cx, pickerY - btnR * 1.1);
+    ctx.fillText('CHOOSE CHARACTER', cx, pickerY - btnR * 1.8);
 
     // Clear and rebuild button hit areas each frame
     emojiButtons = [];
