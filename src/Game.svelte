@@ -142,7 +142,7 @@
     bird.vy += GRAVITY;
     bird.y  += bird.vy;
 
-    if (bird.y - BIRD_SIZE / 2 < 0) { bird.y = BIRD_SIZE / 2; bird.vy = 0; }
+    if (bird.y - BIRD_SIZE / 2 < 0) { gameOver(); return; } // ceiling kills too
     if (bird.y + BIRD_SIZE / 2 >= H - 25) { gameOver(); return; }
 
     if (frame % PIPE_INTERVAL === 0) spawnPipe();
