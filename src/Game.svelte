@@ -14,10 +14,17 @@
   const GRAVITY       = 0.5;     // How fast the dodo falls
   const FLAP_POWER    = -10;     // How high it jumps per flap
   const BIRD_SIZE     = 44;      // Emoji size in pixels
-  const PIPE_WIDTH    = 70;      // How wide each pipe is
-  const PIPE_GAP      = 190;     // Vertical gap between top and bottom pipe
-  const PIPE_SPEED    = 3;       // How fast pipes scroll left
-  const PIPE_INTERVAL = 95;      // Frames between new pipes
+  const PIPE_WIDTH      = 70;    // How wide each pipe is
+  const PIPE_GAP_START  = 260;   // Gap at the very beginning (easy)
+  const PIPE_GAP_MIN    = 130;   // Smallest the gap ever gets (hard)
+  const PIPE_GAP_SHRINK = 6;     // How many px the gap shrinks per point scored
+  const PIPE_SPEED      = 3;     // How fast pipes scroll left
+  const PIPE_INTERVAL   = 95;    // Frames between new pipes
+
+  // Gap size at the current score — shrinks until it hits the minimum
+  function gapForScore(s) {
+    return Math.max(PIPE_GAP_MIN, PIPE_GAP_START - s * PIPE_GAP_SHRINK);
+  }
 
   // ─── State ─────────────────────────────────────────────────────────────────
   let gameState = 'start';       // 'start' | 'playing' | 'dead'
@@ -52,10 +59,11 @@
 
   // ─── Add a new pipe ────────────────────────────────────────────────────────
   function spawnPipe() {
+    const gap    = gapForScore(score);   // snapshot gap at current score
     const minTop = H * 0.12;
-    const maxTop = H * 0.72 - PIPE_GAP;
+    const maxTop = H * 0.72 - gap;
     const gapTop = minTop + Math.random() * (maxTop - minTop);
-    pipes.push({ x: W, gapTop, scored: false });
+    pipes.push({ x: W, gapTop, gap, scored: false });
   }
 
   // ─── Collision between bird and one pipe ───────────────────────────────────
@@ -67,7 +75,7 @@
     const bb = bird.y + BIRD_SIZE / 2 - margin;
 
     if (br < p.x || bl > p.x + PIPE_WIDTH) return false; // not in x range
-    return bt < p.gapTop || bb > p.gapTop + PIPE_GAP;    // in gap or not?
+    return bt < p.gapTop || bb > p.gapTop + p.gap;        // in gap or not?
   }
 
   // ─── Update game state each frame ─────────────────────────────────────────
@@ -243,7 +251,7 @@
     ctx.fillRect(p.x + 6, 0, 10, p.gapTop - capH);
 
     // ── Bottom pipe ──
-    const bTop = p.gapTop + PIPE_GAP;
+    const bTop = p.gapTop + p.gap;
 
     ctx.fillStyle = '#4CAF50';
     ctx.fillRect(p.x, bTop + capH, PIPE_WIDTH, H - bTop - capH);
