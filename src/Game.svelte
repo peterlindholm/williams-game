@@ -159,10 +159,14 @@
 
       const cx = W / 2, cy = H / 2;
 
+      ctx.fillStyle    = '#FFD700';
+      ctx.font         = 'bold 28px sans-serif';
+      ctx.textBaseline = 'middle';
+      ctx.fillText("William's Flying Game 🦤", cx, cy - 120);
+
       ctx.fillStyle    = 'white';
       ctx.font         = 'bold 52px sans-serif';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('Game Over', cx, cy - 80);
+      ctx.fillText('Game Over', cx, cy - 70);
 
       ctx.font = '30px sans-serif';
       ctx.fillText(`Score: ${score}`, cx, cy - 20);
