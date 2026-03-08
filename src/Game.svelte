@@ -470,7 +470,13 @@
   function drawSun() {
     const sx = W * 0.80;
     const sy = H * 0.14;
-    const r  = Math.min(W, H) * 0.075;
+
+    // Breathing pulse
+    const pulse = 1 + Math.sin(frame * 0.04) * 0.05;
+    const r     = Math.min(W, H) * 0.075 * pulse;
+
+    // Rays slowly rotate
+    const rayRot = frame * 0.008;
 
     ctx.save();
 
@@ -479,7 +485,7 @@
     ctx.lineWidth   = Math.max(2, r * 0.08);
     ctx.lineCap     = 'round';
     for (let i = 0; i < rayCount; i++) {
-      const angle = (i / rayCount) * Math.PI * 2;
+      const angle = (i / rayCount) * Math.PI * 2 + rayRot;
       ctx.beginPath();
       ctx.moveTo(sx + Math.cos(angle) * (r + 4),        sy + Math.sin(angle) * (r + 4));
       ctx.lineTo(sx + Math.cos(angle) * (r + r * 0.38), sy + Math.sin(angle) * (r + r * 0.38));
