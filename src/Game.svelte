@@ -29,8 +29,12 @@
   const PIPE_INTERVAL   = 95;
   const WATER_HEIGHT    = 65;    // How tall the water is at the bottom
 
+  // How many points before the gap resets back to the start size
+  const PIPE_GAP_CYCLE = Math.ceil((PIPE_GAP_START - PIPE_GAP_MIN) / PIPE_GAP_SHRINK); // ~22
+
   function gapForScore(s) {
-    return Math.max(PIPE_GAP_MIN, PIPE_GAP_START - s * PIPE_GAP_SHRINK);
+    const cycleScore = s % PIPE_GAP_CYCLE; // reset every cycle
+    return Math.max(PIPE_GAP_MIN, PIPE_GAP_START - cycleScore * PIPE_GAP_SHRINK);
   }
 
   // ─── Emoji picker ──────────────────────────────────────────────────────────
