@@ -51,8 +51,9 @@ export async function login(username, password) {
   return player;
 }
 
-// Save a score after a game
+// Save a score after a game (silently skipped if Supabase not configured)
 export async function saveScore(playerId, username, score, emoji) {
+  if (!supabase) return;
   const { error } = await supabase
     .from('scores')
     .insert({ player_id: playerId, username, score, emoji });
