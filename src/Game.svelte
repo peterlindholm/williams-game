@@ -538,11 +538,14 @@
     const isCapHit  = deathCause === 'pipe-cap';
     const fishers   = new Set(['🐧', '🦆']);
     const waterMsg  = fishers.has(selectedEmoji) ? 'NO FISH HERE' : 'YOU DROWNED';
+    const isCeiling  = deathCause === 'ceiling';
     const deathText  = wasLaunched ? 'TOLD YOU SO 😈'
+                     : isCeiling  ? 'OUCH MY HEAD'
                      : isCapHit   ? "YOU'RE NOT MARIO"
                      : isDrowned  ? waterMsg
                      :              'GAME OVER';
     const deathColor = wasLaunched ? '#FF1744'
+                     : isCeiling  ? '#FF8F00'
                      : isCapHit   ? '#66BB6A'
                      : isDrowned  ? '#29B6F6'
                      :              'white';
