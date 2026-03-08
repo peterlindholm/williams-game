@@ -182,11 +182,23 @@
 
     drawSun();
 
-    // Ground
-    ctx.fillStyle = '#6DBE45';
+    // Water at the bottom
+    const waterGrad = ctx.createLinearGradient(0, H - 25, 0, H);
+    waterGrad.addColorStop(0, '#29B6F6');
+    waterGrad.addColorStop(1, '#0277BD');
+    ctx.fillStyle = waterGrad;
     ctx.fillRect(0, H - 25, W, 25);
-    ctx.fillStyle = '#4A8F2F';
-    ctx.fillRect(0, H - 8, W, 8);
+
+    // Animated wave line on top of the water
+    ctx.beginPath();
+    ctx.moveTo(0, H - 25);
+    const waveOffset = (frame * 1.5) % (Math.PI * 2);
+    for (let wx = 0; wx <= W; wx += 4) {
+      ctx.lineTo(wx, H - 25 + Math.sin(wx * 0.04 + waveOffset) * 3);
+    }
+    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fill();
 
     pipes.forEach(drawPipe);
 
@@ -335,9 +347,9 @@
     ctx.font      = 'bold 26px sans-serif';
     ctx.fillText('Emoji Jumpers', cx, cy - 120);
 
-    ctx.fillStyle = 'white';
-    ctx.font      = '34px "Press Start 2P"';
-    ctx.fillText('GAME OVER', cx, cy - 65);
+    ctx.fillStyle = '#29B6F6';
+    ctx.font      = '28px "Press Start 2P"';
+    ctx.fillText('YOU DROWNED', cx, cy - 65);
 
     ctx.font = '15px "Press Start 2P"';
     ctx.fillText(`SCORE  ${score}`, cx, cy - 5);
