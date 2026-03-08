@@ -217,7 +217,7 @@
     ctx.restore();
 
     // Water drawn LAST so it covers the emoji when it sinks below the surface
-    const waveOffset = (frame * 1.5) % (Math.PI * 2);
+    const waveOffset = (frame * 0.3) % (Math.PI * 2);
     const waterGrad  = ctx.createLinearGradient(0, H - WATER_HEIGHT, 0, H);
     waterGrad.addColorStop(0, '#29B6F6');
     waterGrad.addColorStop(1, '#0277BD');
