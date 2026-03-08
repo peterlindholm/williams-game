@@ -7,6 +7,9 @@
   let animationId;
   let W, H;
 
+  // Offscreen canvas for the bird emoji (avoids transparency bug with flipped fillText)
+  let birdCanvas, birdCtx;
+
   // ─── Game settings ─────────────────────────────────────────────────────────
   const GRAVITY       = 0.5;     // How fast the dodo falls
   const FLAP_POWER    = -10;     // How high it jumps per flap
@@ -140,10 +143,9 @@
     ctx.translate(bird.x, bird.y);
     ctx.rotate(tilt);
     ctx.scale(-1, 1); // flip horizontally so dodo faces right
-    ctx.font = `${BIRD_SIZE}px serif`;
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🦤', 0, 0);
+    // Use drawImage (not fillText) — fillText with emoji on a flipped context
+    // goes transparent in Chrome; drawImage handles it correctly
+    ctx.drawImage(birdCanvas, -BIRD_SIZE, -BIRD_SIZE, BIRD_SIZE * 2, BIRD_SIZE * 2);
     ctx.restore();
 
     // Score (top centre)
@@ -229,6 +231,17 @@
   // ─── Mount ─────────────────────────────────────────────────────────────────
   onMount(() => {
     ctx = canvas.getContext('2d');
+
+    // Pre-render dodo emoji onto a small offscreen canvas once
+    birdCanvas = document.createElement('canvas');
+    birdCanvas.width  = BIRD_SIZE * 2;
+    birdCanvas.height = BIRD_SIZE * 2;
+    birdCtx = birdCanvas.getContext('2d');
+    birdCtx.font         = `${BIRD_SIZE}px serif`;
+    birdCtx.textAlign    = 'center';
+    birdCtx.textBaseline = 'middle';
+    birdCtx.fillText('🦤', BIRD_SIZE, BIRD_SIZE);
+
     resize();
     init();
     loop();
