@@ -64,10 +64,11 @@
   }
 
   // ─── State ─────────────────────────────────────────────────────────────────
-  let gameState = 'start';
-  let score     = 0;
-  let best      = 0;
-  let frame     = 0;
+  let gameState  = 'start';
+  let score      = 0;
+  let best       = 0;
+  let frame      = 0;
+  let deathCause = 'water'; // 'water' | 'pipe' | 'ceiling'
 
   // ─── Bird ──────────────────────────────────────────────────────────────────
   let bird = { x: 0, y: 0, vy: 0 };
@@ -149,8 +150,8 @@
     bird.vy += GRAVITY;
     bird.y  += bird.vy;
 
-    if (bird.y - BIRD_SIZE / 2 < 0) { gameOver(); return; } // ceiling kills too
-    if (bird.y + BIRD_SIZE / 2 >= H) { gameOver(); return; }
+    if (bird.y - BIRD_SIZE / 2 < 0) { gameOver('ceiling'); return; }
+    if (bird.y + BIRD_SIZE / 2 >= H) { gameOver('water'); return; }
 
     if (frame % PIPE_INTERVAL === 0) spawnPipe();
 
@@ -159,12 +160,13 @@
       p.x -= PIPE_SPEED;
       if (!p.scored && p.x + PIPE_WIDTH < bird.x) { p.scored = true; score++; }
       if (p.x + PIPE_WIDTH < 0) { pipes.splice(i, 1); continue; }
-      if (hits(p)) { gameOver(); return; }
+      if (hits(p)) { gameOver('pipe'); return; }
     }
   }
 
-  function gameOver() {
-    gameState = 'dead';
+  function gameOver(cause = 'water') {
+    deathCause = cause;
+    gameState  = 'dead';
     if (score > best) best = score;
   }
 
@@ -348,9 +350,11 @@
     ctx.font      = 'bold 26px sans-serif';
     ctx.fillText('Emoji Jumpers', cx, cy - 120);
 
-    ctx.fillStyle = '#29B6F6';
+    const deathText  = deathCause === 'pipe' ? 'GAME OVER' : 'YOU DROWNED';
+    const deathColor = deathCause === 'pipe' ? 'white'    : '#29B6F6';
+    ctx.fillStyle = deathColor;
     ctx.font      = '28px "Press Start 2P"';
-    ctx.fillText('YOU DROWNED', cx, cy - 65);
+    ctx.fillText(deathText, cx, cy - 65);
 
     ctx.font = '15px "Press Start 2P"';
     ctx.fillText(`SCORE  ${score}`, cx, cy - 5);
