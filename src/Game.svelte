@@ -33,7 +33,7 @@
 
   // Per-emoji overrides: some need a pre-rotation and/or no horizontal flip
   const EMOJI_CONFIG = {
-    '🚀': { rotate: -Math.PI / 4, flip: false }, // rotate 45° CCW → points up-right; no flip
+    '🚀': { rotate: 0, flip: false }, // no rotation needed — glyph naturally points up-right
   };
 
   let selectedEmoji  = '🦤';
