@@ -1,5 +1,11 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { saveScore } from './lib/auth.js';
+
+  // ─── Props from App ────────────────────────────────────────────────────────
+  export let player          = null;  // { id, username }
+  export let onLogout        = () => {};
+  export let showLeaderboard = () => {};
 
   // ─── Canvas setup ─────────────────────────────────────────────────────────
   let canvas;
@@ -179,6 +185,10 @@
     deathCause = cause;
     gameState  = 'dead';
     if (score > best) best = score;
+    // Save score to Supabase if logged in
+    if (player && score > 0) {
+      saveScore(player.id, player.username, score, selectedEmoji);
+    }
   }
 
   // ─── Draw ──────────────────────────────────────────────────────────────────
@@ -298,6 +308,15 @@
     const colGap     = Math.min(btnR * 2.6, (W * 0.88) / cols);
     const totalGridW = colGap * (cols - 1);
     const startX     = cx - totalGridW / 2;
+
+    // Logged-in player name (top of start screen)
+    if (player?.username) {
+      ctx.font         = '11px "Press Start 2P"';
+      ctx.fillStyle    = 'rgba(255,215,0,0.9)';
+      ctx.textAlign    = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(`👤 ${player.username}`, 16, 16);
+    }
 
     // "Choose your character" label
     ctx.font         = '13px "Press Start 2P"';
@@ -559,12 +578,62 @@
   onDestroy(() => cancelAnimationFrame(animationId));
 </script>
 
-<canvas bind:this={canvas} on:pointerdown={handlePointer}></canvas>
+<div class="wrap">
+  <canvas bind:this={canvas} on:pointerdown={handlePointer}></canvas>
+
+  {#if gameState === 'start'}
+    <div class="start-ui">
+      <button class="lb-btn" on:click|stopPropagation={showLeaderboard}>🏆 Leaderboard</button>
+      <button class="out-btn" on:click|stopPropagation={onLogout}>Sign out</button>
+    </div>
+  {/if}
+</div>
 
 <style>
+  .wrap {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
   canvas {
     display: block;
     touch-action: none;
     cursor: pointer;
   }
+
+  .start-ui {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.75rem;
+    pointer-events: all;
+  }
+
+  .lb-btn, .out-btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    backdrop-filter: blur(4px);
+  }
+
+  .lb-btn {
+    background: rgba(255,215,0,0.25);
+    color: #FFD700;
+    border-color: #FFD700;
+  }
+  .lb-btn:hover { background: rgba(255,215,0,0.45); }
+
+  .out-btn {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
+  }
+  .out-btn:hover { background: rgba(255,255,255,0.2); color: white; }
 </style>
