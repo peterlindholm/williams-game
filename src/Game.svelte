@@ -20,6 +20,7 @@
   const PIPE_GAP_SHRINK = 6;
   const PIPE_SPEED      = 3;
   const PIPE_INTERVAL   = 95;
+  const WATER_HEIGHT    = 65;    // How tall the water is at the bottom
 
   function gapForScore(s) {
     return Math.max(PIPE_GAP_MIN, PIPE_GAP_START - s * PIPE_GAP_SHRINK);
@@ -149,7 +150,7 @@
     bird.y  += bird.vy;
 
     if (bird.y - BIRD_SIZE / 2 < 0) { gameOver(); return; } // ceiling kills too
-    if (bird.y + BIRD_SIZE / 2 >= H - 25) { gameOver(); return; }
+    if (bird.y + BIRD_SIZE / 2 >= H - WATER_HEIGHT) { gameOver(); return; }
 
     if (frame % PIPE_INTERVAL === 0) spawnPipe();
 
@@ -182,34 +183,34 @@
 
     drawSun();
 
-    // Water at the bottom
-    const waterGrad = ctx.createLinearGradient(0, H - 25, 0, H);
-    waterGrad.addColorStop(0, '#29B6F6');
-    waterGrad.addColorStop(1, '#0277BD');
-    ctx.fillStyle = waterGrad;
-    ctx.fillRect(0, H - 25, W, 25);
-
-    // Animated wave line on top of the water
-    ctx.beginPath();
-    ctx.moveTo(0, H - 25);
-    const waveOffset = (frame * 1.5) % (Math.PI * 2);
-    for (let wx = 0; wx <= W; wx += 4) {
-      ctx.lineTo(wx, H - 25 + Math.sin(wx * 0.04 + waveOffset) * 3);
-    }
-    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
-    ctx.fillStyle = 'rgba(255,255,255,0.18)';
-    ctx.fill();
-
     pipes.forEach(drawPipe);
 
-    // Bird
+    // Bird — drawn before water so water covers it when underwater
     ctx.save();
     const tilt = Math.max(-0.4, Math.min(bird.vy * 0.055, 0.6));
     ctx.translate(bird.x, bird.y);
     ctx.rotate(tilt);
-    if (shouldFlipBird) ctx.scale(-1, 1); // flip birds to face right; skip for pre-rotated emojis
+    if (shouldFlipBird) ctx.scale(-1, 1);
     ctx.drawImage(birdCanvas, -BIRD_SIZE, -BIRD_SIZE, BIRD_SIZE * 2, BIRD_SIZE * 2);
     ctx.restore();
+
+    // Water drawn LAST so it covers the emoji when it sinks below the surface
+    const waveOffset = (frame * 1.5) % (Math.PI * 2);
+    const waterGrad  = ctx.createLinearGradient(0, H - WATER_HEIGHT, 0, H);
+    waterGrad.addColorStop(0, '#29B6F6');
+    waterGrad.addColorStop(1, '#0277BD');
+    ctx.fillStyle = waterGrad;
+    ctx.fillRect(0, H - WATER_HEIGHT, W, WATER_HEIGHT);
+
+    // Animated wave on the surface
+    ctx.beginPath();
+    ctx.moveTo(0, H - WATER_HEIGHT);
+    for (let wx = 0; wx <= W; wx += 4) {
+      ctx.lineTo(wx, H - WATER_HEIGHT + Math.sin(wx * 0.04 + waveOffset) * 4);
+    }
+    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fill();
 
     // Score
     if (gameState !== 'start') drawScore();
