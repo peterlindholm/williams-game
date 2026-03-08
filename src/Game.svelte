@@ -85,7 +85,8 @@
   let score      = 0;
   let best       = 0;
   let frame      = 0;
-  let deathCause = 'water'; // 'water' | 'pipe' | 'ceiling'
+  let deathCause = 'water'; // 'water' | 'pipe' | 'pipe-cap' | 'ceiling'
+  let deathFrame = 0;      // frame number when death happened (for animations)
 
   // ─── Bird ──────────────────────────────────────────────────────────────────
   let bird = { x: 0, y: 0, vy: 0 };
@@ -189,6 +190,7 @@
 
   function gameOver(cause = 'water') {
     deathCause = cause;
+    deathFrame = frame;
     gameState  = 'dead';
     if (score > best) best = score;
     // Save score to Supabase if logged in
@@ -405,9 +407,25 @@
     const deathText  = isCapHit  ? "YOU'RE NOT MARIO"
                      : isDrowned ? waterMsg
                      :             'GAME OVER';
-    const deathColor = isCapHit  ? '#66BB6A'  // pipe green
+    const deathColor = isCapHit  ? '#66BB6A'
                      : isDrowned ? '#29B6F6'
                      :             'white';
+
+    // 🍄 Mario pops up next to the text when it's a pipe-cap death
+    if (isCapHit) {
+      // Pop animation: grows from 0 → 120% → settles at 100%
+      const t     = Math.min(1, (frame - deathFrame) / 18);
+      const scale = t < 0.65 ? (t / 0.65) * 1.25 : 1.25 - 0.25 * ((t - 0.65) / 0.35);
+      const popSize = Math.round(42 * scale);
+      const popY    = cy - 65;
+
+      ctx.font         = `${popSize}px serif`;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign    = 'right';
+      ctx.fillText('🍄', cx - 14, popY);
+      ctx.textAlign = 'left';
+      ctx.fillText('🍄', cx + 14, popY);
+    }
     ctx.fillStyle = deathColor;
     ctx.font      = '42px "Fredoka One"';
     ctx.fillText(deathText, cx, cy - 65);
