@@ -285,6 +285,9 @@
     if (isNight) { drawStars(); drawMoon(); }
     else         { drawSun(); }
 
+    // Fish drawn early so pipes always appear in FRONT of them
+    drawFish();
+
     // Bird drawn BEFORE pipes — so pipes appear on top, making it look
     // like the bird gets swallowed into the pipe on collision
     // (also drawn before water so water covers it when underwater)
@@ -325,9 +328,6 @@
     ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
     ctx.fillStyle = 'rgba(255,255,255,0.15)';
     ctx.fill();
-
-    // Jumping fish — drawn on top of water surface
-    drawFish();
 
     // Score
     if (gameState !== 'start') drawScore();
