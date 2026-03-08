@@ -113,6 +113,9 @@
 
   // ─── Draw everything ────────────────────────────────────────────────────────
   function draw() {
+    // Reset canvas state at the start of every frame
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
     ctx.clearRect(0, 0, W, H);
 
     // Sky
