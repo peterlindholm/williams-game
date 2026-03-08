@@ -169,15 +169,29 @@
     ctx.restore();
 
     // Score (top centre — only while playing or after death)
+    // Each digit cycles: red → yellow → blue → red → …
     if (gameState !== 'start') {
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'top';
+      const digitColors = ['#E53935', '#FDD835', '#1E88E5'];
+      const digits = String(score).split('');
+
       ctx.font         = '28px "Press Start 2P"';
-      ctx.strokeStyle  = 'rgba(0,0,0,0.5)';
-      ctx.lineWidth    = 5;
-      ctx.strokeText(score, W / 2, 18);
-      ctx.fillStyle    = '#FFD700';
-      ctx.fillText(score, W / 2, 18);
+      ctx.textBaseline = 'top';
+      ctx.textAlign    = 'left';
+
+      // Measure one char width (Press Start 2P is monospace)
+      const cw      = ctx.measureText('0').width;
+      const spacing = cw + 4;
+      const totalW  = digits.length * cw + (digits.length - 1) * 4;
+      let   x       = W / 2 - totalW / 2;
+
+      digits.forEach((digit, i) => {
+        ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+        ctx.lineWidth   = 5;
+        ctx.strokeText(digit, x, 18);
+        ctx.fillStyle = digitColors[i % 3];
+        ctx.fillText(digit, x, 18);
+        x += spacing;
+      });
     }
 
     // ── Start screen ──────────────────────────────────────────────────────────
