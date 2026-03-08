@@ -85,8 +85,10 @@
   let score      = 0;
   let best       = 0;
   let frame      = 0;
-  let deathCause = 'water'; // 'water' | 'pipe' | 'pipe-cap' | 'ceiling'
-  let deathFrame = 0;      // frame number when death happened (for animations)
+  let deathCause  = 'water';
+  let deathFrame  = 0;
+  let startFrame  = -1;    // frame when gameplay started (for frontflip animation)
+  const FLIP_FRAMES = 32;  // how long the frontflip takes
 
   // ─── Bird ──────────────────────────────────────────────────────────────────
   let bird = { x: 0, y: 0, vy: 0 };
@@ -100,33 +102,33 @@
     W = canvas.width;
     H = canvas.height;
     bird      = { x: W * 0.25, y: H * 0.42, vy: 0 };
-    pipes     = [];
-    pipeCount = 0;
-    frame     = 0;
-    score     = 0;
-    gameState = 'start';
+    pipes      = [];
+    pipeCount  = 0;
+    frame      = 0;
+    score      = 0;
+    startFrame = -1;
+    gameState  = 'start';
   }
 
   // ─── Pointer handler — hit-test emoji buttons on start screen ─────────────
   function handlePointer(e) {
     if (gameState === 'start') {
-      // Convert pointer coords to canvas coords
       const rect = canvas.getBoundingClientRect();
       const px   = (e.clientX - rect.left) * (W / rect.width);
       const py   = (e.clientY - rect.top)  * (H / rect.height);
 
-      // Check if we hit an emoji button
       for (const btn of emojiButtons) {
         if (Math.hypot(px - btn.x, py - btn.y) < btn.r) {
           selectedEmoji = btn.emoji;
           renderBirdCanvas();
-          return; // select emoji, don't start yet
+          return;
         }
       }
 
-      // Didn't hit a button → start game
-      gameState = 'playing';
-      bird.vy   = FLAP_POWER;
+      // Start game + trigger frontflip
+      gameState  = 'playing';
+      startFrame = frame;
+      bird.vy    = FLAP_POWER;
       return;
     }
 
@@ -228,8 +230,17 @@
     // (also drawn before water so water covers it when underwater)
     ctx.save();
     const tilt = Math.max(-0.4, Math.min(bird.vy * 0.055, 0.6));
+
+    // Frontflip on game start — full 360° with ease-out
+    let flipAngle = 0;
+    if (startFrame >= 0 && gameState === 'playing') {
+      const t = Math.min(1, (frame - startFrame) / FLIP_FRAMES);
+      const eased = 1 - Math.pow(1 - t, 2.5); // ease-out: fast start, slow finish
+      flipAngle = eased * Math.PI * 2;
+    }
+
     ctx.translate(bird.x, bird.y);
-    ctx.rotate(tilt);
+    ctx.rotate(tilt + flipAngle);
     if (shouldFlipBird) ctx.scale(-1, 1);
     ctx.drawImage(birdCanvas, -BIRD_SIZE, -BIRD_SIZE, BIRD_SIZE * 2, BIRD_SIZE * 2);
     ctx.restore();
