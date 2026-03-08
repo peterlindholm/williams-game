@@ -215,9 +215,9 @@
     if (isNight) { drawStars(); drawMoon(); }
     else         { drawSun(); }
 
-    pipes.forEach(drawPipe);
-
-    // Bird — drawn before water so water covers it when underwater
+    // Bird drawn BEFORE pipes — so pipes appear on top, making it look
+    // like the bird gets swallowed into the pipe on collision
+    // (also drawn before water so water covers it when underwater)
     ctx.save();
     const tilt = Math.max(-0.4, Math.min(bird.vy * 0.055, 0.6));
     ctx.translate(bird.x, bird.y);
@@ -225,6 +225,9 @@
     if (shouldFlipBird) ctx.scale(-1, 1);
     ctx.drawImage(birdCanvas, -BIRD_SIZE, -BIRD_SIZE, BIRD_SIZE * 2, BIRD_SIZE * 2);
     ctx.restore();
+
+    // Pipes drawn AFTER bird — covers bird on collision (goes into pipe effect)
+    pipes.forEach(drawPipe);
 
     // Water drawn LAST so it covers the emoji when it sinks below the surface
     const waveOffset = (frame * 0.3) % (Math.PI * 2);
@@ -390,10 +393,15 @@
     ctx.fillText('Emoji Jumpers', cx, cy - 120);
 
     const isDrowned    = deathCause === 'water';
-    const fishers      = new Set(['🐧', '🦆']); // these look for fish instead
+    const isPipe       = deathCause === 'pipe';
+    const fishers      = new Set(['🐧', '🦆']);
     const waterMessage = fishers.has(selectedEmoji) ? 'NO FISH HERE' : 'YOU DROWNED';
-    const deathText    = isDrowned ? waterMessage : 'GAME OVER';
-    const deathColor   = isDrowned ? '#29B6F6'    : 'white';
+    const deathText    = isPipe    ? "YOU'RE NOT MARIO"
+                       : isDrowned ? waterMessage
+                       :             'GAME OVER';
+    const deathColor   = isPipe    ? '#66BB6A'   // green like pipes
+                       : isDrowned ? '#29B6F6'
+                       :             'white';
     ctx.fillStyle = deathColor;
     ctx.font      = '28px "Press Start 2P"';
     ctx.fillText(deathText, cx, cy - 65);
