@@ -10,6 +10,13 @@
   // Offscreen canvas for the bird emoji (avoids transparency bug with flipped fillText)
   let birdCanvas, birdCtx;
 
+  // ─── Stars (pre-computed positions so they don't jitter each frame) ────────
+  const STARS = Array.from({ length: 40 }, (_, i) => ({
+    x:    ((i * 137.508) % 97 + 1.5) / 100,   // 0–1 relative to W
+    y:    ((i * 83.127)  % 58 + 1.0) / 100,   // 0–1 relative to H (top 60%)
+    r:    (i % 3 === 0) ? 2.0 : (i % 3 === 1) ? 1.3 : 0.9,
+  }));
+
   // ─── Game settings ─────────────────────────────────────────────────────────
   const GRAVITY         = 0.5;
   const FLAP_POWER      = -10;
@@ -176,14 +183,23 @@
     ctx.globalCompositeOperation = 'source-over';
     ctx.clearRect(0, 0, W, H);
 
+    // Day / night cycle — flips every 10 points
+    const isNight = Math.floor(score / 10) % 2 === 1;
+
     // Sky
     const sky = ctx.createLinearGradient(0, 0, 0, H);
-    sky.addColorStop(0, '#5BC8F5');
-    sky.addColorStop(1, '#C9EEFF');
+    if (isNight) {
+      sky.addColorStop(0, '#06082a');
+      sky.addColorStop(1, '#1a1a5a');
+    } else {
+      sky.addColorStop(0, '#5BC8F5');
+      sky.addColorStop(1, '#C9EEFF');
+    }
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
-    drawSun();
+    if (isNight) { drawStars(); drawMoon(); }
+    else         { drawSun(); }
 
     pipes.forEach(drawPipe);
 
@@ -366,6 +382,51 @@
     ctx.font      = '11px "Press Start 2P"';
     ctx.fillStyle = '#FFD700';
     ctx.fillText('TAP OR SPACE TO PLAY AGAIN', cx, cy + 90);
+  }
+
+  // ─── Stars ─────────────────────────────────────────────────────────────────
+  function drawStars() {
+    ctx.save();
+    STARS.forEach(s => {
+      const twinkle = 0.5 + Math.sin(frame * 0.05 + s.x * 10) * 0.5;
+      ctx.beginPath();
+      ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 220, ${twinkle})`;
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  // ─── Moon ──────────────────────────────────────────────────────────────────
+  function drawMoon() {
+    const mx = W * 0.80;
+    const my = H * 0.14;
+    const r  = Math.min(W, H) * 0.075;
+
+    ctx.save();
+
+    // Full moon circle
+    ctx.beginPath();
+    ctx.arc(mx, my, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFF9C4';
+    ctx.fill();
+
+    // Cut a crescent by painting the sky colour over an offset circle
+    ctx.beginPath();
+    ctx.arc(mx - r * 0.38, my - r * 0.10, r * 0.82, 0, Math.PI * 2);
+    ctx.fillStyle = '#06082a'; // matches night sky top colour
+    ctx.fill();
+
+    // Soft glow ring around the moon
+    const glow = ctx.createRadialGradient(mx, my, r * 0.9, mx, my, r * 1.6);
+    glow.addColorStop(0,   'rgba(255,249,196,0.18)');
+    glow.addColorStop(1,   'rgba(255,249,196,0)');
+    ctx.beginPath();
+    ctx.arc(mx, my, r * 1.6, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    ctx.restore();
   }
 
   // ─── Sun ───────────────────────────────────────────────────────────────────
