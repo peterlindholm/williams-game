@@ -337,9 +337,13 @@
     const capH   = 24;
     const capOvr = 6;
 
-    // First pipe is red, all others are green
-    const colorBody = p.index === 0 ? '#E53935' : '#4CAF50';
-    const colorCap  = p.index === 0 ? '#B71C1C' : '#388E3C';
+    // Pipes cycle: red → yellow → blue → red → yellow → blue …
+    const colors = [
+      { body: '#E53935', cap: '#B71C1C' },  // red
+      { body: '#FDD835', cap: '#F9A825' },  // yellow
+      { body: '#1E88E5', cap: '#1565C0' },  // blue
+    ];
+    const { body: colorBody, cap: colorCap } = colors[p.index % 3];
 
     // ── Top pipe ──
     ctx.fillStyle = colorBody;
