@@ -82,8 +82,26 @@
 
   // ─── Jumping fish (decorative — appear above water surface) ───────────────
   const FISH_EMOJIS = ['🐟','🐡','🐠'];
+  const FISH_SIZE   = 42;
+  let fishCanvases  = {};   // pre-rendered offscreen canvases, one per emoji
   let fishJumpers   = [];
   let nextFishScore = 5;  // spawn a fish every ~5 points
+
+  // Pre-render each fish emoji to its own offscreen canvas
+  // (avoids Chrome's transparency bug when rotating fillText)
+  function renderFishCanvases() {
+    for (const emoji of FISH_EMOJIS) {
+      const fc        = document.createElement('canvas');
+      fc.width        = FISH_SIZE * 2;
+      fc.height       = FISH_SIZE * 2;
+      const fctx      = fc.getContext('2d');
+      fctx.font         = `${FISH_SIZE}px serif`;
+      fctx.textAlign    = 'center';
+      fctx.textBaseline = 'middle';
+      fctx.fillText(emoji, FISH_SIZE, FISH_SIZE);
+      fishCanvases[emoji] = fc;
+    }
+  }
 
   function spawnFish() {
     fishJumpers.push({
@@ -112,10 +130,8 @@
       ctx.save();
       ctx.translate(f.x, y);
       ctx.rotate(tilt);
-      ctx.font         = '42px serif';   // bigger!
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(f.emoji, 0, 0);
+      // Use pre-rendered offscreen canvas to avoid Chrome transparency bug
+      ctx.drawImage(fishCanvases[f.emoji], -FISH_SIZE, -FISH_SIZE, FISH_SIZE * 2, FISH_SIZE * 2);
       ctx.restore();
     }
   }
@@ -746,6 +762,7 @@
     birdCanvas.height = BIRD_SIZE * 2;
     birdCtx           = birdCanvas.getContext('2d');
     renderBirdCanvas();
+    renderFishCanvases();
 
     resize();
     init();
