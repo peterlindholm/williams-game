@@ -146,8 +146,8 @@
   let frame      = 0;
   let deathCause  = 'water';
   let deathFrame  = 0;
-  let startFrame  = -1;    // frame when gameplay started (for frontflip animation)
-  const FLIP_FRAMES = 32;  // how long the frontflip takes
+  let lastFlapFrame = -1;    // frame of most recent flap (triggers frontflip)
+  const FLIP_FRAMES = 32;   // how long each frontflip takes
 
   // ─── Bird ──────────────────────────────────────────────────────────────────
   let bird = { x: 0, y: 0, vy: 0 };
@@ -165,7 +165,7 @@
     pipeCount     = 0;
     frame         = 0;
     score         = 0;
-    startFrame    = -1;
+    lastFlapFrame = -1;
     fishJumpers   = [];
     nextFishScore = 5;
     gameState     = 'start';
@@ -187,14 +187,15 @@
       }
 
       // Start game + trigger frontflip
-      gameState  = 'playing';
-      startFrame = frame;
-      bird.vy    = FLAP_POWER;
+      gameState     = 'playing';
+      lastFlapFrame = frame;
+      bird.vy       = FLAP_POWER;
       return;
     }
 
     if (gameState === 'dead') { init(); return; }
-    bird.vy = FLAP_POWER;
+    bird.vy       = FLAP_POWER;
+    lastFlapFrame = frame;  // frontflip on every jump!
   }
 
   // ─── Spawn pipe ────────────────────────────────────────────────────────────
@@ -297,10 +298,10 @@
     ctx.save();
     const tilt = Math.max(-0.4, Math.min(bird.vy * 0.055, 0.6));
 
-    // Frontflip on game start — full 360° with ease-out
+    // Frontflip on every jump — full 360° with ease-out
     let flipAngle = 0;
-    if (startFrame >= 0 && gameState === 'playing') {
-      const t = Math.min(1, (frame - startFrame) / FLIP_FRAMES);
+    if (lastFlapFrame >= 0 && gameState === 'playing') {
+      const t = Math.min(1, (frame - lastFlapFrame) / FLIP_FRAMES);
       const eased = 1 - Math.pow(1 - t, 2.5); // ease-out: fast start, slow finish
       flipAngle = eased * Math.PI * 2;
     }
