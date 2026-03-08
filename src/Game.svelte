@@ -411,21 +411,7 @@
                      : isDrowned ? '#29B6F6'
                      :             'white';
 
-    // 🍄 Mario pops up next to the text when it's a pipe-cap death
-    if (isCapHit) {
-      // Pop animation: grows from 0 → 120% → settles at 100%
-      const t     = Math.min(1, (frame - deathFrame) / 18);
-      const scale = t < 0.65 ? (t / 0.65) * 1.25 : 1.25 - 0.25 * ((t - 0.65) / 0.35);
-      const popSize = Math.round(42 * scale);
-      const popY    = cy - 65;
-
-      ctx.font         = `${popSize}px serif`;
-      ctx.textBaseline = 'middle';
-      ctx.textAlign    = 'right';
-      ctx.fillText('🍄', cx - 14, popY);
-      ctx.textAlign = 'left';
-      ctx.fillText('🍄', cx + 14, popY);
-    }
+    // Death message only — no mushrooms
     ctx.fillStyle = deathColor;
     ctx.font      = '42px "Fredoka One"';
     ctx.fillText(deathText, cx, cy - 65);
@@ -608,13 +594,41 @@
       ctx.stroke();
 
       if (night) {
-        // Closed eye — curved line
+        // Light blue shadow on lower half — looks like a droopy sleepy eye
+        ctx.save();
         ctx.beginPath();
-        ctx.arc(ex, cy + eyeR * 0.15, eyeR * 0.65, Math.PI + 0.35, -0.35, true);
-        ctx.strokeStyle = '#333';
-        ctx.lineWidth   = eyeR * 0.35;
+        ctx.arc(ex, cy, eyeR, 0, Math.PI);
+        ctx.clip();
+        ctx.fillStyle = 'rgba(180, 210, 240, 0.45)';
+        ctx.fillRect(ex - eyeR, cy, eyeR * 2, eyeR);
+        ctx.restore();
+
+        // Eyelid curve across the middle
+        ctx.beginPath();
+        ctx.moveTo(ex - eyeR * 0.88, cy - eyeR * 0.05);
+        ctx.quadraticCurveTo(ex, cy + eyeR * 0.42, ex + eyeR * 0.88, cy - eyeR * 0.05);
+        ctx.strokeStyle = '#2a2a2a';
+        ctx.lineWidth   = Math.max(2, eyeR * 0.28);
         ctx.lineCap     = 'round';
         ctx.stroke();
+
+        // 3 lashes hanging down from the lid
+        const lashes = [
+          { rx: -0.52, ax: -0.45 },
+          { rx:  0,    ax:  0    },
+          { rx:  0.52, ax:  0.45 },
+        ];
+        for (const { rx, ax } of lashes) {
+          const lx = ex + rx * eyeR * 0.82;
+          const ly = cy + eyeR * (0.18 + (0.5 - Math.abs(rx)) * 0.4);
+          ctx.beginPath();
+          ctx.moveTo(lx, ly);
+          ctx.lineTo(lx + Math.sin(ax) * eyeR * 0.38, ly + eyeR * 0.48);
+          ctx.strokeStyle = '#2a2a2a';
+          ctx.lineWidth   = Math.max(1.5, eyeR * 0.15);
+          ctx.lineCap     = 'round';
+          ctx.stroke();
+        }
       } else {
         // Wiggle pupil
         const pupilR = eyeR * 0.48;
