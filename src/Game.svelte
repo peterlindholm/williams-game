@@ -250,10 +250,10 @@
     ctx.textBaseline = 'middle';
     ctx.fillStyle    = '#FFD700';
     ctx.font         = `bold ${Math.min(44, panelW * 0.115)}px sans-serif`;
-    ctx.fillText("William's", cx, panelY + panelH * 0.30);
+    ctx.fillText('Emoji', cx, panelY + panelH * 0.30);
     ctx.font         = `bold ${Math.min(50, panelW * 0.13)}px sans-serif`;
     ctx.fillStyle    = 'white';
-    ctx.fillText('Flying Game', cx, panelY + panelH * 0.68);
+    ctx.fillText('Jumpers', cx, panelY + panelH * 0.68);
 
     // ── Emoji picker ──────────────────────────────────────────────────────────
     const pickerY    = H * 0.38;             // top of the picker area
@@ -333,7 +333,7 @@
 
     ctx.fillStyle = '#FFD700';
     ctx.font      = 'bold 26px sans-serif';
-    ctx.fillText("William's Flying Game", cx, cy - 120);
+    ctx.fillText('Emoji Jumpers', cx, cy - 120);
 
     ctx.fillStyle = 'white';
     ctx.font      = '34px "Press Start 2P"';
