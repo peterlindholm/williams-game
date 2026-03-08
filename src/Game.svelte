@@ -80,6 +80,46 @@
     birdCtx.restore();
   }
 
+  // ─── Jumping fish (decorative — appear above water surface) ───────────────
+  const FISH_EMOJIS = ['🐟','🐡','🐠'];
+  let fishJumpers   = [];
+  let nextFishFrame = 60;
+
+  function spawnFish() {
+    fishJumpers.push({
+      x:          W * (0.08 + Math.random() * 0.84),
+      peakHeight: 65 + Math.random() * 90,
+      duration:   55 + Math.random() * 35,
+      t:          0,
+      emoji:      FISH_EMOJIS[Math.floor(Math.random() * FISH_EMOJIS.length)],
+    });
+    nextFishFrame = frame + 100 + Math.floor(Math.random() * 220);
+  }
+
+  function updateFish() {
+    if (frame >= nextFishFrame) spawnFish();
+    for (let i = fishJumpers.length - 1; i >= 0; i--) {
+      fishJumpers[i].t += 1 / fishJumpers[i].duration;
+      if (fishJumpers[i].t >= 1) fishJumpers.splice(i, 1);
+    }
+  }
+
+  function drawFish() {
+    const surfaceY = H - WATER_HEIGHT;
+    for (const f of fishJumpers) {
+      const y    = surfaceY - f.peakHeight * Math.sin(f.t * Math.PI);
+      const tilt = Math.PI * 0.75 * (f.t - 0.5); // tilts nose-up → nose-down through arc
+      ctx.save();
+      ctx.translate(f.x, y);
+      ctx.rotate(tilt);
+      ctx.font         = '26px serif';
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(f.emoji, 0, 0);
+      ctx.restore();
+    }
+  }
+
   // ─── State ─────────────────────────────────────────────────────────────────
   let gameState  = 'start';
   let score      = 0;
@@ -101,13 +141,15 @@
   function init() {
     W = canvas.width;
     H = canvas.height;
-    bird      = { x: W * 0.25, y: H * 0.42, vy: 0 };
-    pipes      = [];
-    pipeCount  = 0;
-    frame      = 0;
-    score      = 0;
-    startFrame = -1;
-    gameState  = 'start';
+    bird          = { x: W * 0.25, y: H * 0.42, vy: 0 };
+    pipes         = [];
+    pipeCount     = 0;
+    frame         = 0;
+    score         = 0;
+    startFrame    = -1;
+    fishJumpers   = [];
+    nextFishFrame = 60;
+    gameState     = 'start';
   }
 
   // ─── Pointer handler — hit-test emoji buttons on start screen ─────────────
@@ -162,6 +204,7 @@
 
     if (gameState === 'start') {
       bird.y = H * 0.42 + Math.sin(frame * 0.06) * 14;
+      updateFish();
       return;
     }
 
@@ -188,6 +231,8 @@
         return;
       }
     }
+
+    updateFish();
   }
 
   function gameOver(cause = 'water') {
@@ -265,6 +310,9 @@
     ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
     ctx.fillStyle = 'rgba(255,255,255,0.15)';
     ctx.fill();
+
+    // Jumping fish — drawn on top of water surface
+    drawFish();
 
     // Score
     if (gameState !== 'start') drawScore();
