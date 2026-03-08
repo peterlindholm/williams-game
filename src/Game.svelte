@@ -136,6 +136,7 @@
     const tilt = Math.max(-0.4, Math.min(bird.vy * 0.055, 0.6));
     ctx.translate(bird.x, bird.y);
     ctx.rotate(tilt);
+    ctx.scale(-1, 1); // flip horizontally so dodo faces right
     ctx.font = `${BIRD_SIZE}px serif`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
