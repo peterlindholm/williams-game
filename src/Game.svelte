@@ -30,16 +30,30 @@
     '🦤','🐦','🐧','🦅','🦆','🦜',
     '🐸','🐉','🦄','🐱','🐶','🚀',
   ];
-  let selectedEmoji = '🦤';
-  let emojiButtons  = []; // populated each frame: [{ x, y, r, emoji }, …]
+
+  // Per-emoji overrides: some need a pre-rotation and/or no horizontal flip
+  const EMOJI_CONFIG = {
+    '🚀': { rotate: Math.PI / 2, flip: false }, // rotate 90° CW so it faces right; no flip
+  };
+
+  let selectedEmoji  = '🦤';
+  let shouldFlipBird = true;
+  let emojiButtons   = [];
 
   // Re-render the offscreen bird canvas whenever the emoji changes
   function renderBirdCanvas() {
+    const config   = EMOJI_CONFIG[selectedEmoji];
+    shouldFlipBird = config ? config.flip : true;
+
     birdCtx.clearRect(0, 0, BIRD_SIZE * 2, BIRD_SIZE * 2);
+    birdCtx.save();
+    birdCtx.translate(BIRD_SIZE, BIRD_SIZE);
+    if (config?.rotate) birdCtx.rotate(config.rotate);
     birdCtx.font         = `${BIRD_SIZE}px serif`;
     birdCtx.textAlign    = 'center';
     birdCtx.textBaseline = 'middle';
-    birdCtx.fillText(selectedEmoji, BIRD_SIZE, BIRD_SIZE);
+    birdCtx.fillText(selectedEmoji, 0, 0);
+    birdCtx.restore();
   }
 
   // ─── State ─────────────────────────────────────────────────────────────────
@@ -175,7 +189,7 @@
     const tilt = Math.max(-0.4, Math.min(bird.vy * 0.055, 0.6));
     ctx.translate(bird.x, bird.y);
     ctx.rotate(tilt);
-    ctx.scale(-1, 1);
+    if (shouldFlipBird) ctx.scale(-1, 1); // flip birds to face right; skip for pre-rotated emojis
     ctx.drawImage(birdCanvas, -BIRD_SIZE, -BIRD_SIZE, BIRD_SIZE * 2, BIRD_SIZE * 2);
     ctx.restore();
 
