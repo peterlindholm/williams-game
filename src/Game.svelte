@@ -31,6 +31,12 @@
     '🐸','🐉','🦄','🐱','🐶','🚀',
   ];
 
+  const EMOJI_NAMES = {
+    '🦤':'Dodo',  '🐦':'Fugl',   '🐧':'Pingvin', '🦅':'Ørn',
+    '🦆':'And',   '🦜':'Papegøje','🐸':'Frø',     '🐉':'Drage',
+    '🦄':'Enhjørning','🐱':'Kat', '🐶':'Hund',    '🚀':'Raket',
+  };
+
   // Per-emoji overrides: some need a pre-rotation and/or no horizontal flip
   const EMOJI_CONFIG = {
     '🚀': { rotate: 0, flip: false }, // no rotation needed — glyph naturally points up-right
@@ -272,7 +278,7 @@
       const col  = i % cols;
       const row  = Math.floor(i / cols);
       const bx   = startX + col * colGap;
-      const by   = pickerY + row * (btnR * 2.5);
+      const by   = pickerY + row * (btnR * 3.2); // extra space for name labels
 
       emojiButtons.push({ x: bx, y: by, r: btnR, emoji });
 
@@ -296,11 +302,18 @@
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(emoji, bx, by);
+
+      // Name label above the button
+      const labelSize = Math.max(8, btnR * 0.28);
+      ctx.font         = `${labelSize}px sans-serif`;
+      ctx.textBaseline = 'bottom';
+      ctx.fillStyle    = isSelected ? '#FFD700' : 'rgba(255,255,255,0.85)';
+      ctx.fillText(EMOJI_NAMES[emoji] ?? emoji, bx, by - btnR - 2);
     });
 
     // Pulsing "tap to start" prompt (below the picker)
     const lastRow    = Math.floor((EMOJI_OPTIONS.length - 1) / cols);
-    const promptY    = pickerY + lastRow * (btnR * 2.5) + btnR * 2.0;
+    const promptY    = pickerY + lastRow * (btnR * 3.2) + btnR * 2.2;
     const pulse      = 0.6 + Math.sin(frame * 0.07) * 0.4;
     ctx.fillStyle    = `rgba(255, 255, 255, ${pulse})`;
     ctx.font         = '14px "Press Start 2P"';
