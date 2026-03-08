@@ -177,7 +177,13 @@
       p.x -= PIPE_SPEED;
       if (!p.scored && p.x + PIPE_WIDTH < bird.x) { p.scored = true; score++; }
       if (p.x + PIPE_WIDTH < 0) { pipes.splice(i, 1); continue; }
-      if (hits(p)) { gameOver('pipe'); return; }
+      if (hits(p)) {
+        // Cap hit = bird centre is inside the gap vertically (entered from top or bottom)
+        // Side hit = bird centre is outside the gap (flew into the pipe wall)
+        const capHit = bird.y >= p.gapTop && bird.y <= p.gapTop + p.gap;
+        gameOver(capHit ? 'pipe-cap' : 'pipe');
+        return;
+      }
     }
   }
 
@@ -392,16 +398,16 @@
     ctx.font      = 'bold 26px sans-serif';
     ctx.fillText('Emoji Jumpers', cx, cy - 120);
 
-    const isDrowned    = deathCause === 'water';
-    const isPipe       = deathCause === 'pipe';
-    const fishers      = new Set(['🐧', '🦆']);
-    const waterMessage = fishers.has(selectedEmoji) ? 'NO FISH HERE' : 'YOU DROWNED';
-    const deathText    = isPipe    ? "YOU'RE NOT MARIO"
-                       : isDrowned ? waterMessage
-                       :             'GAME OVER';
-    const deathColor   = isPipe    ? '#66BB6A'   // green like pipes
-                       : isDrowned ? '#29B6F6'
-                       :             'white';
+    const isDrowned = deathCause === 'water';
+    const isCapHit  = deathCause === 'pipe-cap';
+    const fishers   = new Set(['🐧', '🦆']);
+    const waterMsg  = fishers.has(selectedEmoji) ? 'NO FISH HERE' : 'YOU DROWNED';
+    const deathText  = isCapHit  ? "YOU'RE NOT MARIO"
+                     : isDrowned ? waterMsg
+                     :             'GAME OVER';
+    const deathColor = isCapHit  ? '#66BB6A'  // pipe green
+                     : isDrowned ? '#29B6F6'
+                     :             'white';
     ctx.fillStyle = deathColor;
     ctx.font      = '28px "Press Start 2P"';
     ctx.fillText(deathText, cx, cy - 65);
