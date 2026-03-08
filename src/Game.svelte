@@ -147,6 +147,7 @@
   let deathCause  = 'water';
   let deathFrame  = 0;
   let lastFlapFrame = -1;    // frame of most recent flap (triggers frontflip)
+  let flapCount     = 0;     // total flaps since game start
   const FLIP_FRAMES = 32;   // how long each frontflip takes
 
   // ─── Bird ──────────────────────────────────────────────────────────────────
@@ -166,6 +167,7 @@
     frame         = 0;
     score         = 0;
     lastFlapFrame = -1;
+    flapCount     = 0;
     fishJumpers   = [];
     nextFishScore = 5;
     gameState     = 'start';
@@ -186,16 +188,18 @@
         }
       }
 
-      // Start game + trigger frontflip
+      // Start game — always do a frontflip on the first jump
       gameState     = 'playing';
+      flapCount     = 1;
       lastFlapFrame = frame;
       bird.vy       = FLAP_POWER;
       return;
     }
 
     if (gameState === 'dead') { init(); return; }
-    bird.vy       = FLAP_POWER;
-    lastFlapFrame = frame;  // frontflip on every jump!
+    bird.vy = FLAP_POWER;
+    flapCount++;
+    if (flapCount % 3 === 0) lastFlapFrame = frame;  // frontflip every 3rd hop
   }
 
   // ─── Spawn pipe ────────────────────────────────────────────────────────────
