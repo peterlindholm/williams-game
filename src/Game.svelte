@@ -437,8 +437,11 @@
   // ─── Moon ──────────────────────────────────────────────────────────────────
   function drawMoon() {
     const mx = W * 0.80;
-    const my = H * 0.14;
-    const r  = Math.min(W, H) * 0.075;
+    // Gentle bob up and down
+    const my = H * 0.14 + Math.sin(frame * 0.025) * 6;
+    // Slow pulse
+    const pulse = 1 + Math.sin(frame * 0.035) * 0.04;
+    const r  = Math.min(W, H) * 0.075 * pulse;
 
     ctx.save();
 
@@ -454,12 +457,14 @@
     ctx.fillStyle = '#06082a'; // matches night sky top colour
     ctx.fill();
 
-    // Soft glow ring around the moon
-    const glow = ctx.createRadialGradient(mx, my, r * 0.9, mx, my, r * 1.6);
-    glow.addColorStop(0,   'rgba(255,249,196,0.18)');
-    glow.addColorStop(1,   'rgba(255,249,196,0)');
+    // Soft glow ring — pulses in size and brightness
+    const glowSize = r * (1.5 + Math.sin(frame * 0.05) * 0.2);
+    const glowAlpha = 0.15 + Math.sin(frame * 0.05) * 0.08;
+    const glow = ctx.createRadialGradient(mx, my, r * 0.9, mx, my, glowSize);
+    glow.addColorStop(0, `rgba(255,249,196,${glowAlpha})`);
+    glow.addColorStop(1,  'rgba(255,249,196,0)');
     ctx.beginPath();
-    ctx.arc(mx, my, r * 1.6, 0, Math.PI * 2);
+    ctx.arc(mx, my, glowSize, 0, Math.PI * 2);
     ctx.fillStyle = glow;
     ctx.fill();
 
