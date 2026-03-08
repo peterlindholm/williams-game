@@ -51,7 +51,7 @@
 
   const EMOJI_NAMES = {
     '🦤':'Dodo',    '🐦':'Bird',   '🐧':'Penguin', '🦅':'Eagle',
-    '🦆':'Albert',  '🦜':'Parrot', '🐸':'Frog',    '🐉':'Dragon',
+    '🦆':'Duck',  '🦜':'Parrot', '🐸':'Frog',    '🐉':'Dragon',
     '🦄':'Unicorn', '🐱':'Cat',    '🐶':'Dog',      '🚀':'Rocket',
   };
 
