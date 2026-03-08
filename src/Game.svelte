@@ -37,6 +37,7 @@
 
   // ─── Pipes ─────────────────────────────────────────────────────────────────
   let pipes = [];
+  let pipeCount = 0;   // tracks how many pipes have spawned this game
 
   // ─── Start / restart ───────────────────────────────────────────────────────
   function init() {
@@ -44,9 +45,10 @@
     H = canvas.height;
 
     bird   = { x: W * 0.25, y: H * 0.42, vy: 0 };
-    pipes  = [];
-    frame  = 0;
-    score  = 0;
+    pipes     = [];
+    pipeCount = 0;
+    frame     = 0;
+    score     = 0;
     gameState = 'start';
   }
 
@@ -63,7 +65,7 @@
     const minTop = H * 0.12;
     const maxTop = H * 0.72 - gap;
     const gapTop = minTop + Math.random() * (maxTop - minTop);
-    pipes.push({ x: W, gapTop, gap, scored: false });
+    pipes.push({ x: W, gapTop, gap, scored: false, index: pipeCount++ });
   }
 
   // ─── Collision between bird and one pipe ───────────────────────────────────
@@ -333,13 +335,17 @@
 
   function drawPipe(p) {
     const capH   = 24;
-    const capOvr = 6; // cap overhangs pipe body on each side
+    const capOvr = 6;
+
+    // First pipe is red, all others are green
+    const colorBody = p.index === 0 ? '#E53935' : '#4CAF50';
+    const colorCap  = p.index === 0 ? '#B71C1C' : '#388E3C';
 
     // ── Top pipe ──
-    ctx.fillStyle = '#4CAF50';
+    ctx.fillStyle = colorBody;
     ctx.fillRect(p.x, 0, PIPE_WIDTH, p.gapTop - capH);
 
-    ctx.fillStyle = '#388E3C';
+    ctx.fillStyle = colorCap;
     ctx.fillRect(p.x - capOvr, p.gapTop - capH, PIPE_WIDTH + capOvr * 2, capH);
 
     // Highlight stripe
@@ -349,10 +355,10 @@
     // ── Bottom pipe ──
     const bTop = p.gapTop + p.gap;
 
-    ctx.fillStyle = '#4CAF50';
+    ctx.fillStyle = colorBody;
     ctx.fillRect(p.x, bTop + capH, PIPE_WIDTH, H - bTop - capH);
 
-    ctx.fillStyle = '#388E3C';
+    ctx.fillStyle = colorCap;
     ctx.fillRect(p.x - capOvr, bTop, PIPE_WIDTH + capOvr * 2, capH);
 
     // Highlight stripe
