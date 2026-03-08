@@ -143,6 +143,9 @@
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
+    // Sun (background decoration — drawn before everything else)
+    drawSun();
+
     // Ground
     ctx.fillStyle = '#6DBE45';
     ctx.fillRect(0, H - 25, W, 25);
@@ -233,6 +236,82 @@
       ctx.fillStyle = '#FFD700';
       ctx.fillText('Tap or press Space to play again 🦤', cx, cy + 90);
     }
+  }
+
+  // ─── Decorative sun with sunglasses ───────────────────────────────────────
+  function drawSun() {
+    const sx = W * 0.80;
+    const sy = H * 0.14;
+    const r  = Math.min(W, H) * 0.075;
+
+    ctx.save();
+
+    // Rays
+    const rayCount = 12;
+    ctx.strokeStyle = '#FFC107';
+    ctx.lineWidth   = Math.max(2, r * 0.08);
+    for (let i = 0; i < rayCount; i++) {
+      const angle = (i / rayCount) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(sx + Math.cos(angle) * (r + 4),       sy + Math.sin(angle) * (r + 4));
+      ctx.lineTo(sx + Math.cos(angle) * (r + r * 0.4), sy + Math.sin(angle) * (r + r * 0.4));
+      ctx.stroke();
+    }
+
+    // Sun body
+    ctx.beginPath();
+    ctx.arc(sx, sy, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFE135';
+    ctx.fill();
+
+    // Sunglasses — two dark lenses + bridge + arms
+    const lw  = r * 0.36;   // lens half-width
+    const lh  = r * 0.22;   // lens half-height
+    const gy  = sy + r * 0.08;
+    const lx  = sx - r * 0.30;  // left lens centre
+    const rx2 = sx + r * 0.30;  // right lens centre
+
+    ctx.fillStyle   = '#1a1a2e';
+    ctx.strokeStyle = '#444';
+    ctx.lineWidth   = Math.max(1.5, r * 0.05);
+
+    // Left lens
+    ctx.beginPath();
+    ctx.ellipse(lx, gy, lw, lh, 0, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+
+    // Right lens
+    ctx.beginPath();
+    ctx.ellipse(rx2, gy, lw, lh, 0, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+
+    // Bridge
+    ctx.beginPath();
+    ctx.moveTo(lx + lw, gy);
+    ctx.lineTo(rx2 - lw, gy);
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth   = Math.max(2, r * 0.06);
+    ctx.stroke();
+
+    // Left arm
+    ctx.beginPath();
+    ctx.moveTo(lx - lw, gy);
+    ctx.lineTo(sx - r * 0.88, gy - r * 0.06);
+    ctx.stroke();
+
+    // Right arm
+    ctx.beginPath();
+    ctx.moveTo(rx2 + lw, gy);
+    ctx.lineTo(sx + r * 0.88, gy - r * 0.06);
+    ctx.stroke();
+
+    // Glare on left lens (small white arc — a classic cool touch)
+    ctx.beginPath();
+    ctx.arc(lx - lw * 0.25, gy - lh * 0.3, lw * 0.22, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fill();
+
+    ctx.restore();
   }
 
   function drawPipe(p) {
