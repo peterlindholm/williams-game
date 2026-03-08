@@ -581,12 +581,7 @@
 <div class="wrap">
   <canvas bind:this={canvas} on:pointerdown={handlePointer}></canvas>
 
-  {#if gameState === 'start'}
-    <div class="start-ui">
-      <button class="lb-btn" on:click|stopPropagation={showLeaderboard}>🏆 Leaderboard</button>
-      <button class="out-btn" on:click|stopPropagation={onLogout}>Sign out</button>
-    </div>
-  {/if}
+  <!-- Leaderboard and sign out buttons hidden for now -->
 </div>
 
 <style>
