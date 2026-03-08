@@ -20,7 +20,7 @@
   const PIPE_INTERVAL = 95;      // Frames between new pipes
 
   // ─── State ─────────────────────────────────────────────────────────────────
-  let gameState = 'playing';     // 'playing' | 'dead'
+  let gameState = 'start';       // 'start' | 'playing' | 'dead'
   let score     = 0;
   let best      = 0;
   let frame     = 0;
@@ -40,12 +40,13 @@
     pipes  = [];
     frame  = 0;
     score  = 0;
-    gameState = 'playing';
+    gameState = 'start';
   }
 
   // ─── Flap! ─────────────────────────────────────────────────────────────────
   function flap() {
-    if (gameState === 'dead') { init(); return; }
+    if (gameState === 'start') { gameState = 'playing'; bird.vy = FLAP_POWER; return; }
+    if (gameState === 'dead')  { init(); return; }
     bird.vy = FLAP_POWER;
   }
 
@@ -71,9 +72,15 @@
 
   // ─── Update game state each frame ─────────────────────────────────────────
   function update() {
-    if (gameState !== 'playing') return;
-
     frame++;
+
+    // On the start screen the bird gently bobs up and down
+    if (gameState === 'start') {
+      bird.y = H * 0.42 + Math.sin(frame * 0.06) * 14;
+      return;
+    }
+
+    if (gameState !== 'playing') return;
 
     // Apply gravity
     bird.vy += GRAVITY;
@@ -148,17 +155,53 @@
     ctx.drawImage(birdCanvas, -BIRD_SIZE, -BIRD_SIZE, BIRD_SIZE * 2, BIRD_SIZE * 2);
     ctx.restore();
 
-    // Score (top centre)
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'top';
-    ctx.font         = 'bold 44px sans-serif';
-    ctx.strokeStyle  = 'rgba(0,0,0,0.25)';
-    ctx.lineWidth    = 4;
-    ctx.strokeText(score, W / 2, 18);
-    ctx.fillStyle    = 'white';
-    ctx.fillText(score, W / 2, 18);
+    // Score (top centre — only while playing or after death)
+    if (gameState !== 'start') {
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'top';
+      ctx.font         = 'bold 44px sans-serif';
+      ctx.strokeStyle  = 'rgba(0,0,0,0.25)';
+      ctx.lineWidth    = 4;
+      ctx.strokeText(score, W / 2, 18);
+      ctx.fillStyle    = 'white';
+      ctx.fillText(score, W / 2, 18);
+    }
 
-    // Game Over overlay
+    // ── Start screen ──────────────────────────────────────────────────────────
+    if (gameState === 'start') {
+      const cx = W / 2;
+
+      // Dark panel behind the title
+      const panelW = Math.min(480, W * 0.88);
+      const panelH = 190;
+      const panelX = cx - panelW / 2;
+      const panelY = H * 0.18;
+
+      ctx.fillStyle = 'rgba(0, 20, 60, 0.60)';
+      ctx.beginPath();
+      ctx.roundRect(panelX, panelY, panelW, panelH, 22);
+      ctx.fill();
+
+      // Title line 1
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle    = '#FFD700';
+      ctx.font         = `bold ${Math.min(46, panelW * 0.12)}px sans-serif`;
+      ctx.fillText("William's", cx, panelY + panelH * 0.32);
+
+      // Title line 2
+      ctx.font      = `bold ${Math.min(52, panelW * 0.135)}px sans-serif`;
+      ctx.fillStyle = 'white';
+      ctx.fillText('Flying Game', cx, panelY + panelH * 0.68);
+
+      // Pulsing "tap to start" prompt
+      const pulse = 0.6 + Math.sin(frame * 0.07) * 0.4;
+      ctx.fillStyle = `rgba(255, 255, 255, ${pulse})`;
+      ctx.font      = '22px sans-serif';
+      ctx.fillText('Tap or press Space to start', cx, H * 0.78);
+    }
+
+    // ── Game Over overlay ─────────────────────────────────────────────────────
     if (gameState === 'dead') {
       ctx.fillStyle = 'rgba(0,0,0,0.45)';
       ctx.fillRect(0, 0, W, H);
