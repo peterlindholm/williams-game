@@ -149,6 +149,8 @@
   let lastFlapFrame = -1;    // frame of most recent flap (triggers frontflip)
   let flapCount     = 0;     // total flaps since game start
   const FLIP_FRAMES = 32;   // how long each frontflip takes
+  let wasLaunched   = false; // did the player hit the troll launch pad?
+  let launchPadBtn  = null;  // { x, y, w, h } hit area on start screen
 
   // ─── Bird ──────────────────────────────────────────────────────────────────
   let bird = { x: 0, y: 0, vy: 0 };
@@ -168,6 +170,7 @@
     score         = 0;
     lastFlapFrame = -1;
     flapCount     = 0;
+    wasLaunched   = false;
     fishJumpers   = [];
     nextFishScore = 5;
     gameState     = 'start';
@@ -179,6 +182,19 @@
       const rect = canvas.getBoundingClientRect();
       const px   = (e.clientX - rect.left) * (W / rect.width);
       const py   = (e.clientY - rect.top)  * (H / rect.height);
+
+      // 🚀 Troll launch pad check — must be before emoji buttons
+      if (launchPadBtn) {
+        const { x, y, w, h } = launchPadBtn;
+        if (px >= x && px <= x + w && py >= y && py <= y + h) {
+          gameState     = 'playing';
+          wasLaunched   = true;
+          flapCount     = 1;
+          lastFlapFrame = frame;
+          bird.vy       = -30;   // YEET into the ceiling
+          return;
+        }
+      }
 
       for (const btn of emojiButtons) {
         if (Math.hypot(px - btn.x, py - btn.y) < btn.r) {
@@ -467,6 +483,42 @@
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('TAP ANYWHERE TO START', cx, promptY);
+
+    // 🚀 Troll launch pad button — looks very tempting
+    const padW  = 180;
+    const padH  = 44;
+    const padX  = cx - padW / 2;
+    const padY  = H - WATER_HEIGHT - padH - 10;
+    launchPadBtn = { x: padX, y: padY, w: padW, h: padH };
+
+    // Wobble effect to draw attention
+    const wobble = Math.sin(frame * 0.12) * 2;
+
+    ctx.save();
+    ctx.translate(0, wobble);
+
+    // Red glowing button
+    ctx.shadowColor  = '#FF1744';
+    ctx.shadowBlur   = 12 + Math.sin(frame * 0.08) * 6;
+    ctx.fillStyle    = '#E53935';
+    ctx.beginPath();
+    ctx.roundRect(padX, padY, padW, padH, 10);
+    ctx.fill();
+    ctx.shadowBlur   = 0;
+
+    // Dark border
+    ctx.strokeStyle  = '#B71C1C';
+    ctx.lineWidth    = 3;
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle    = 'white';
+    ctx.font         = 'bold 16px "Fredoka One"';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🚀 DO NOT PRESS', cx, padY + padH / 2);
+
+    ctx.restore();
   }
 
   // ─── Game over screen ──────────────────────────────────────────────────────
@@ -486,12 +538,14 @@
     const isCapHit  = deathCause === 'pipe-cap';
     const fishers   = new Set(['🐧', '🦆']);
     const waterMsg  = fishers.has(selectedEmoji) ? 'NO FISH HERE' : 'YOU DROWNED';
-    const deathText  = isCapHit  ? "YOU'RE NOT MARIO"
-                     : isDrowned ? waterMsg
-                     :             'GAME OVER';
-    const deathColor = isCapHit  ? '#66BB6A'
-                     : isDrowned ? '#29B6F6'
-                     :             'white';
+    const deathText  = wasLaunched ? 'TOLD YOU SO 😈'
+                     : isCapHit   ? "YOU'RE NOT MARIO"
+                     : isDrowned  ? waterMsg
+                     :              'GAME OVER';
+    const deathColor = wasLaunched ? '#FF1744'
+                     : isCapHit   ? '#66BB6A'
+                     : isDrowned  ? '#29B6F6'
+                     :              'white';
 
     // Death message only — no mushrooms
     ctx.fillStyle = deathColor;
