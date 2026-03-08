@@ -567,18 +567,20 @@
     const cx   = p.x + PIPE_WIDTH / 2;
     const eyeR = capH * 0.38;
     const gap2 = eyeR * 1.1;
-    // Pupils wiggle using sin/cos — each pipe wiggles slightly differently
     const seed  = p.index * 1.7;
     const pxOff = Math.cos(frame * 0.12 + seed) * eyeR * 0.38;
     const pyOff = Math.sin(frame * 0.09 + seed) * eyeR * 0.38;
 
-    drawWiggleEyes(cx, p.gapTop - capH / 2, eyeR, gap2, pxOff, pyOff); // top pipe cap
-    drawWiggleEyes(cx, bTop + capH / 2,     eyeR, gap2, pxOff, pyOff); // bottom pipe cap
+    drawWiggleEyes(cx, p.gapTop - capH / 2, eyeR, gap2, pxOff, pyOff, p.index, true);  // top cap — ZZZ go up
+    drawWiggleEyes(cx, bTop + capH / 2,     eyeR, gap2, pxOff, pyOff, p.index, false); // bottom cap — ZZZ go up too
   }
 
-  function drawWiggleEyes(cx, cy, eyeR, gap, pxOff, pyOff) {
+  function drawWiggleEyes(cx, cy, eyeR, gap, pxOff, pyOff, pipeIndex, zAbove) {
+    // Compute isNight from score (same formula as draw())
+    const night = Math.floor(score / 10) % 2 === 1;
+
     for (const ex of [cx - gap, cx + gap]) {
-      // White
+      // White eyeball
       ctx.beginPath();
       ctx.arc(ex, cy, eyeR, 0, Math.PI * 2);
       ctx.fillStyle = 'white';
@@ -587,20 +589,47 @@
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Pupil (wiggles inside the white)
-      const pupilR = eyeR * 0.48;
-      const px = Math.max(ex - eyeR + pupilR, Math.min(ex + eyeR - pupilR, ex + pxOff));
-      const py = Math.max(cy - eyeR + pupilR, Math.min(cy + eyeR - pupilR, cy + pyOff));
-      ctx.beginPath();
-      ctx.arc(px, py, pupilR, 0, Math.PI * 2);
-      ctx.fillStyle = '#111';
-      ctx.fill();
+      if (night) {
+        // Closed eye — curved line
+        ctx.beginPath();
+        ctx.arc(ex, cy + eyeR * 0.15, eyeR * 0.65, Math.PI + 0.35, -0.35, true);
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth   = eyeR * 0.35;
+        ctx.lineCap     = 'round';
+        ctx.stroke();
+      } else {
+        // Wiggle pupil
+        const pupilR = eyeR * 0.48;
+        const px = Math.max(ex - eyeR + pupilR, Math.min(ex + eyeR - pupilR, ex + pxOff));
+        const py = Math.max(cy - eyeR + pupilR, Math.min(cy + eyeR - pupilR, cy + pyOff));
+        ctx.beginPath();
+        ctx.arc(px, py, pupilR, 0, Math.PI * 2);
+        ctx.fillStyle = '#111';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(px - pupilR * 0.3, py - pupilR * 0.3, pupilR * 0.25, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+      }
+    }
 
-      // Glare dot
-      ctx.beginPath();
-      ctx.arc(px - pupilR * 0.3, py - pupilR * 0.3, pupilR * 0.25, 0, Math.PI * 2);
-      ctx.fillStyle = 'white';
-      ctx.fill();
+    // 💤 Floating ZZZ at night
+    if (night) {
+      const dir = zAbove ? -1 : 1;
+      for (let i = 0; i < 3; i++) {
+        const phase    = ((frame * 0.008 + i * 0.33 + pipeIndex * 0.2) % 1);
+        const zY       = cy + dir * (eyeR + 8 + phase * 36);
+        const alpha    = Math.sin(phase * Math.PI);
+        const size     = 9 + i * 3 + phase * 5;
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.85;
+        ctx.font         = `bold ${size}px sans-serif`;
+        ctx.fillStyle    = '#FFD700';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Z', cx + (i - 1) * 5 + phase * 8 * dir, zY);
+        ctx.restore();
+      }
     }
   }
 
