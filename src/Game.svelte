@@ -172,11 +172,11 @@
     if (gameState !== 'start') {
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'top';
-      ctx.font         = 'bold 44px sans-serif';
-      ctx.strokeStyle  = 'rgba(0,0,0,0.25)';
-      ctx.lineWidth    = 4;
+      ctx.font         = '28px "Press Start 2P"';
+      ctx.strokeStyle  = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth    = 5;
       ctx.strokeText(score, W / 2, 18);
-      ctx.fillStyle    = 'white';
+      ctx.fillStyle    = '#FFD700';
       ctx.fillText(score, W / 2, 18);
     }
 
@@ -227,16 +227,16 @@
       ctx.fillText("William's Flying Game 🦤", cx, cy - 120);
 
       ctx.fillStyle    = 'white';
-      ctx.font         = 'bold 52px sans-serif';
-      ctx.fillText('Game Over', cx, cy - 70);
+      ctx.font         = '36px "Press Start 2P"';
+      ctx.fillText('GAME OVER', cx, cy - 70);
 
-      ctx.font = '30px sans-serif';
-      ctx.fillText(`Score: ${score}`, cx, cy - 20);
-      ctx.fillText(`Best:  ${best}`,  cx, cy + 25);
+      ctx.font = '16px "Press Start 2P"';
+      ctx.fillText(`SCORE  ${score}`, cx, cy - 10);
+      ctx.fillText(`BEST   ${best}`,  cx, cy + 30);
 
-      ctx.font      = '22px sans-serif';
+      ctx.font      = '11px "Press Start 2P"';
       ctx.fillStyle = '#FFD700';
-      ctx.fillText('Tap or press Space to play again 🦤', cx, cy + 90);
+      ctx.fillText('TAP OR SPACE TO PLAY AGAIN', cx, cy + 90);
     }
   }
 
@@ -386,7 +386,7 @@
   }
 
   // ─── Mount ─────────────────────────────────────────────────────────────────
-  onMount(() => {
+  onMount(async () => {
     ctx = canvas.getContext('2d');
 
     // Pre-render dodo emoji onto a small offscreen canvas once
@@ -401,6 +401,9 @@
 
     resize();
     init();
+
+    // Wait for custom fonts (Press Start 2P) before starting — canvas needs them loaded
+    await document.fonts.ready;
     loop();
 
     window.addEventListener('resize', () => { resize(); if (gameState === 'dead') draw(); });
