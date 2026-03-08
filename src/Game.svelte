@@ -178,7 +178,7 @@
         '3': '#1E88E5', // blue
         '4': '#8E24AA', // purple
         '5': '#43A047', // green
-        '6': '#212121', // black (dark, needs strong outline)
+        '6': '#29B6F6', // light blue
         '7': '#FB8C00', // orange
         '8': '#6D4C41', // brown
         '9': '#F5F5F5', // white (needs strong outline)
