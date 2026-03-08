@@ -150,7 +150,7 @@
     bird.y  += bird.vy;
 
     if (bird.y - BIRD_SIZE / 2 < 0) { gameOver(); return; } // ceiling kills too
-    if (bird.y + BIRD_SIZE / 2 >= H - WATER_HEIGHT) { gameOver(); return; }
+    if (bird.y + BIRD_SIZE / 2 >= H) { gameOver(); return; }
 
     if (frame % PIPE_INTERVAL === 0) spawnPipe();
 
