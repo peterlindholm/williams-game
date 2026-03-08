@@ -83,7 +83,7 @@
   // ─── Jumping fish (decorative — appear above water surface) ───────────────
   const FISH_EMOJIS = ['🐟','🐡','🐠'];
   let fishJumpers   = [];
-  let nextFishFrame = 60;
+  let nextFishScore = 5;  // spawn a fish every ~5 points
 
   function spawnFish() {
     fishJumpers.push({
@@ -93,11 +93,11 @@
       t:          0,
       emoji:      FISH_EMOJIS[Math.floor(Math.random() * FISH_EMOJIS.length)],
     });
-    nextFishFrame = frame + 100 + Math.floor(Math.random() * 220);
+    nextFishScore += 5;
   }
 
   function updateFish() {
-    if (frame >= nextFishFrame) spawnFish();
+    if (score >= nextFishScore) spawnFish();
     for (let i = fishJumpers.length - 1; i >= 0; i--) {
       fishJumpers[i].t += 1 / fishJumpers[i].duration;
       if (fishJumpers[i].t >= 1) fishJumpers.splice(i, 1);
@@ -148,7 +148,7 @@
     score         = 0;
     startFrame    = -1;
     fishJumpers   = [];
-    nextFishFrame = 60;
+    nextFishScore = 5;
     gameState     = 'start';
   }
 
@@ -204,7 +204,6 @@
 
     if (gameState === 'start') {
       bird.y = H * 0.42 + Math.sin(frame * 0.06) * 14;
-      updateFish();
       return;
     }
 
