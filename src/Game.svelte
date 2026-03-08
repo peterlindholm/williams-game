@@ -91,10 +91,13 @@
   // (avoids Chrome's transparency bug when rotating fillText)
   function renderFishCanvases() {
     for (const emoji of FISH_EMOJIS) {
-      const fc        = document.createElement('canvas');
-      fc.width        = FISH_SIZE * 2;
-      fc.height       = FISH_SIZE * 2;
-      const fctx      = fc.getContext('2d');
+      const fc   = document.createElement('canvas');
+      fc.width   = FISH_SIZE * 2;
+      fc.height  = FISH_SIZE * 2;
+      const fctx = fc.getContext('2d');
+      // Flip horizontally so fish faces RIGHT (emoji naturally faces left)
+      fctx.translate(FISH_SIZE * 2, 0);
+      fctx.scale(-1, 1);
       fctx.font         = `${FISH_SIZE}px serif`;
       fctx.textAlign    = 'center';
       fctx.textBaseline = 'middle';
