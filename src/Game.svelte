@@ -33,7 +33,7 @@
 
   const EMOJI_NAMES = {
     '🦤':'Dodo',  '🐦':'Fugl',   '🐧':'Pingvin', '🦅':'Ørn',
-    '🦆':'And',   '🦜':'Papegøje','🐸':'Frø',     '🐉':'Drage',
+    '🦆':'Jeffrey',   '🦜':'Papegøje','🐸':'Frø',     '🐉':'Drage',
     '🦄':'Enhjørning','🐱':'Kat', '🐶':'Hund',    '🚀':'Raket',
   };
 
