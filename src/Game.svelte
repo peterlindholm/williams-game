@@ -238,7 +238,7 @@
     }
   }
 
-  // ─── Decorative sun with sunglasses ───────────────────────────────────────
+  // ─── Decorative sun with sunglasses and smile ─────────────────────────────
   function drawSun() {
     const sx = W * 0.80;
     const sy = H * 0.14;
@@ -250,11 +250,12 @@
     const rayCount = 12;
     ctx.strokeStyle = '#FFC107';
     ctx.lineWidth   = Math.max(2, r * 0.08);
+    ctx.lineCap     = 'round';
     for (let i = 0; i < rayCount; i++) {
       const angle = (i / rayCount) * Math.PI * 2;
       ctx.beginPath();
-      ctx.moveTo(sx + Math.cos(angle) * (r + 4),       sy + Math.sin(angle) * (r + 4));
-      ctx.lineTo(sx + Math.cos(angle) * (r + r * 0.4), sy + Math.sin(angle) * (r + r * 0.4));
+      ctx.moveTo(sx + Math.cos(angle) * (r + 4),        sy + Math.sin(angle) * (r + 4));
+      ctx.lineTo(sx + Math.cos(angle) * (r + r * 0.38), sy + Math.sin(angle) * (r + r * 0.38));
       ctx.stroke();
     }
 
@@ -264,52 +265,68 @@
     ctx.fillStyle = '#FFE135';
     ctx.fill();
 
-    // Sunglasses — two dark lenses + bridge + arms
-    const lw  = r * 0.36;   // lens half-width
-    const lh  = r * 0.22;   // lens half-height
-    const gy  = sy + r * 0.08;
-    const lx  = sx - r * 0.30;  // left lens centre
-    const rx2 = sx + r * 0.30;  // right lens centre
+    // ── Sunglasses ──────────────────────────────────────────────────────────
+    // Sit in the upper half of the face, like glasses actually would
+    const lw  = r * 0.30;          // lens half-width
+    const lh  = r * 0.21;          // lens half-height
+    const gy  = sy - r * 0.12;     // slightly above centre = natural eye line
+    const lx  = sx - r * 0.34;     // left lens centre x
+    const rx2 = sx + r * 0.34;     // right lens centre x
+    const frameW = Math.max(2, r * 0.07);
 
-    ctx.fillStyle   = '#1a1a2e';
-    ctx.strokeStyle = '#444';
-    ctx.lineWidth   = Math.max(1.5, r * 0.05);
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth   = frameW;
 
-    // Left lens
+    // Left lens fill + stroke
     ctx.beginPath();
     ctx.ellipse(lx, gy, lw, lh, 0, 0, Math.PI * 2);
-    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fill();
+    ctx.stroke();
 
-    // Right lens
+    // Right lens fill + stroke
     ctx.beginPath();
     ctx.ellipse(rx2, gy, lw, lh, 0, 0, Math.PI * 2);
-    ctx.fill(); ctx.stroke();
+    ctx.fill();
+    ctx.stroke();
 
-    // Bridge
+    // Bridge — a small arc that dips slightly between the lenses
     ctx.beginPath();
     ctx.moveTo(lx + lw, gy);
-    ctx.lineTo(rx2 - lw, gy);
-    ctx.strokeStyle = '#555';
-    ctx.lineWidth   = Math.max(2, r * 0.06);
+    ctx.quadraticCurveTo(sx, gy + lh * 0.5, rx2 - lw, gy);
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth   = frameW;
     ctx.stroke();
 
-    // Left arm
+    // Arms — angle outward to meet the edge of the sun
+    ctx.lineWidth = frameW;
     ctx.beginPath();
     ctx.moveTo(lx - lw, gy);
-    ctx.lineTo(sx - r * 0.88, gy - r * 0.06);
+    ctx.lineTo(sx - r * 0.92, gy - r * 0.10);
     ctx.stroke();
 
-    // Right arm
     ctx.beginPath();
     ctx.moveTo(rx2 + lw, gy);
-    ctx.lineTo(sx + r * 0.88, gy - r * 0.06);
+    ctx.lineTo(sx + r * 0.92, gy - r * 0.10);
     ctx.stroke();
 
-    // Glare on left lens (small white arc — a classic cool touch)
+    // Glare on each lens
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
     ctx.beginPath();
-    ctx.arc(lx - lw * 0.25, gy - lh * 0.3, lw * 0.22, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.ellipse(lx - lw * 0.20, gy - lh * 0.28, lw * 0.28, lh * 0.28, -0.4, 0, Math.PI * 2);
     ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(rx2 - lw * 0.20, gy - lh * 0.28, lw * 0.28, lh * 0.28, -0.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── Smile ────────────────────────────────────────────────────────────────
+    const smileY = sy + r * 0.22;   // below the glasses
+    ctx.beginPath();
+    ctx.arc(sx, smileY, r * 0.32, Math.PI * 0.15, Math.PI * 0.85);
+    ctx.strokeStyle = '#c8860a';
+    ctx.lineWidth   = Math.max(2, r * 0.09);
+    ctx.lineCap     = 'round';
+    ctx.stroke();
 
     ctx.restore();
   }
