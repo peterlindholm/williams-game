@@ -269,7 +269,7 @@
       '8':'#6D4C41','9':'#F5F5F5',
     };
     const digits = String(score).split('');
-    ctx.font         = '28px "Press Start 2P"';
+    ctx.font         = '42px "Fredoka One"';
     ctx.textBaseline = 'top';
     ctx.textAlign    = 'left';
     const cw     = ctx.measureText('0').width;
@@ -320,7 +320,7 @@
 
     // Logged-in player name (top of start screen)
     if (player?.username) {
-      ctx.font         = '11px "Press Start 2P"';
+      ctx.font         = '16px "Fredoka One"';
       ctx.fillStyle    = 'rgba(255,215,0,0.9)';
       ctx.textAlign    = 'left';
       ctx.textBaseline = 'top';
@@ -328,7 +328,7 @@
     }
 
     // "Choose your character" label
-    ctx.font         = '13px "Press Start 2P"';
+    ctx.font         = '18px "Fredoka One"';
     ctx.fillStyle    = 'rgba(255,255,255,0.85)';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
@@ -379,7 +379,7 @@
     const promptY    = pickerY + lastRow * (btnR * 3.2) + btnR * 2.2;
     const pulse      = 0.6 + Math.sin(frame * 0.07) * 0.4;
     ctx.fillStyle    = `rgba(255, 255, 255, ${pulse})`;
-    ctx.font         = '14px "Press Start 2P"';
+    ctx.font         = '20px "Fredoka One"';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('TAP ANYWHERE TO START', cx, promptY);
@@ -409,14 +409,14 @@
                      : isDrowned ? '#29B6F6'
                      :             'white';
     ctx.fillStyle = deathColor;
-    ctx.font      = '28px "Press Start 2P"';
+    ctx.font      = '42px "Fredoka One"';
     ctx.fillText(deathText, cx, cy - 65);
 
-    ctx.font = '15px "Press Start 2P"';
+    ctx.font = '24px "Fredoka One"';
     ctx.fillText(`SCORE  ${score}`, cx, cy - 5);
     ctx.fillText(`HIGHSCORE  ${best}`,  cx, cy + 30);
 
-    ctx.font      = '11px "Press Start 2P"';
+    ctx.font      = '16px "Fredoka One"';
     ctx.fillStyle = '#FFD700';
     ctx.fillText('TAP OR SPACE TO PLAY AGAIN', cx, cy + 90);
   }

@@ -175,7 +175,7 @@
     font-size: 1.1rem;
     font-weight: 700;
     color: #FFD700;
-    font-family: 'Press Start 2P', monospace;
+    font-family: 'Fredoka One', monospace;
     font-size: 0.85rem;
   }
 
