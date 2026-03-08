@@ -88,8 +88,8 @@
   function spawnFish() {
     fishJumpers.push({
       x:          W * (0.08 + Math.random() * 0.84),
-      peakHeight: 65 + Math.random() * 90,
-      duration:   55 + Math.random() * 35,
+      peakHeight: 120 + Math.random() * 100,  // jumps high!
+      duration:   65 + Math.random() * 30,
       t:          0,
       emoji:      FISH_EMOJIS[Math.floor(Math.random() * FISH_EMOJIS.length)],
     });
@@ -112,7 +112,7 @@
       ctx.save();
       ctx.translate(f.x, y);
       ctx.rotate(tilt);
-      ctx.font         = '26px serif';
+      ctx.font         = '42px serif';   // bigger!
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(f.emoji, 0, 0);
