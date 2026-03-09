@@ -158,6 +158,7 @@
   let ghostRound        = false;  // pass through pipes
   let bigGapRound       = false;  // huge pipe gaps
   let turboRound        = false;  // double speed pipes
+  let cheatUsed         = false;  // if true: score doesn't count this round
   let showCodeInput     = false;
   let codeInputValue    = '';
   let codeError         = false;
@@ -166,11 +167,11 @@
   let codeInputEl       = null;   // bind to <input> element
 
   const CHEAT_CODES = {
-    'awesome': () => { noPipesRound = true; return '🎉 NO PIPES!'; },
-    'slowmo':  () => { slowMoRound  = true; return '🐌 SLOW MO!'; },
-    'ghost':   () => { ghostRound   = true; return '👻 GHOST MODE!'; },
-    'bigbig':  () => { bigGapRound  = true; return '🕳️ BIG GAPS!'; },
-    'turbo':   () => { turboRound   = true; return '⚡ TURBO!'; },
+    'awesome': () => { noPipesRound = true; cheatUsed = true; return '🎉 NO PIPES!'; },
+    'slowmo':  () => { slowMoRound  = true; cheatUsed = true; return '🐌 SLOW MO!'; },
+    'ghost':   () => { ghostRound   = true; cheatUsed = true; return '👻 GHOST MODE!'; },
+    'bigbig':  () => { bigGapRound  = true; cheatUsed = true; return '🕳️ BIG GAPS!'; },
+    'turbo':   () => { turboRound   = true; cheatUsed = true; return '⚡ TURBO!'; },
   };
 
   function submitCode() {
@@ -216,6 +217,7 @@
     ghostRound    = false;
     bigGapRound   = false;
     turboRound    = false;
+    cheatUsed     = false;
     codeActivated = false;
     fishJumpers   = [];
     nextFishScore = 5;
@@ -339,9 +341,9 @@
     deathCause = cause;
     deathFrame = frame;
     gameState  = 'dead';
-    if (score > best) best = score;
-    // Save score to Supabase if logged in
-    if (player && score > 0) {
+    if (!cheatUsed && score > best) best = score;
+    // Save score to Supabase if logged in (not in cheat rounds)
+    if (!cheatUsed && player && score > 0) {
       saveScore(player.id, player.username, score, selectedEmoji);
     }
   }
@@ -652,7 +654,13 @@
 
     ctx.font = '24px "Fredoka One"';
     ctx.fillText(`SCORE  ${score}`, cx, cy - 5);
-    ctx.fillText(`HIGHSCORE  ${best}`,  cx, cy + 30);
+    ctx.fillText(`HIGHSCORE  ${best}`, cx, cy + 30);
+
+    if (cheatUsed) {
+      ctx.font      = '15px "Fredoka One"';
+      ctx.fillStyle = 'rgba(255,180,0,0.85)';
+      ctx.fillText('⚠️ CHEAT ROUND — tæller ikke', cx, cy + 62);
+    }
 
     ctx.font      = '16px "Fredoka One"';
     ctx.fillStyle = '#FFD700';
