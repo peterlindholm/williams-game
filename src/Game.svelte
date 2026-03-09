@@ -608,16 +608,16 @@
     ctx.textBaseline = 'middle';
     ctx.fillText('🔑 Enter Code', cbX + cbW / 2, cbY + cbH / 2);
 
-    // 🕵️ Hidden cheat code hints — scattered around, very faint
+    // 🕵️ Hidden cheat code hints — scattered around, subtle but findable
     const hints = [
-      { text: 'slowmo',  x: W * 0.82, y: H * 0.28, rot:  0.18 },
-      { text: 'ghost',   x: W * 0.07, y: H * 0.55, rot: -0.12 },
-      { text: 'bigbig',  x: W * 0.74, y: H * 0.68, rot:  0.08 },
-      { text: 'turbo',   x: W * 0.12, y: H * 0.22, rot: -0.20 },
+      { text: 'slowmo',  x: W * 0.65, y: H * 0.32, rot:  0.10 },
+      { text: 'ghost',   x: W * 0.25, y: H * 0.60, rot: -0.08 },
+      { text: 'bigbig',  x: W * 0.60, y: H * 0.72, rot:  0.05 },
+      { text: 'turbo',   x: W * 0.28, y: H * 0.35, rot: -0.12 },
     ];
     ctx.save();
-    ctx.font         = '9px monospace';
-    ctx.fillStyle    = 'rgba(255,255,255,0.10)';
+    ctx.font         = '13px monospace';
+    ctx.fillStyle    = 'rgba(255,255,255,0.28)';
     ctx.textAlign    = 'left';
     ctx.textBaseline = 'middle';
     for (const h of hints) {
