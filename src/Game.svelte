@@ -36,7 +36,7 @@
   const WATER_HEIGHT    = 65;    // How tall the water is at the bottom
 
   // How many points before the gap resets back to the start size
-  const PIPE_GAP_CYCLE = Math.ceil((PIPE_GAP_START - PIPE_GAP_MIN) / PIPE_GAP_SHRINK); // ~22
+  const PIPE_GAP_CYCLE = 15;
 
   function gapForScore(s) {
     const cycleScore = s % PIPE_GAP_CYCLE; // reset every cycle
