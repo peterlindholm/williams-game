@@ -162,7 +162,7 @@
   let codeInputEl       = null;   // bind to <input> element
 
   const CHEAT_CODES = {
-    'awesome game': () => { noPipesRound = true; return '🎉 NO PIPES MODE!'; },
+    'awesome': () => { noPipesRound = true; return '🎉 NO PIPES MODE!'; },
   };
 
   function submitCode() {
