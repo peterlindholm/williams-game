@@ -608,6 +608,27 @@
     ctx.textBaseline = 'middle';
     ctx.fillText('🔑 Enter Code', cbX + cbW / 2, cbY + cbH / 2);
 
+    // 🕵️ Hidden cheat code hints — scattered around, very faint
+    const hints = [
+      { text: 'slowmo',  x: W * 0.82, y: H * 0.28, rot:  0.18 },
+      { text: 'ghost',   x: W * 0.07, y: H * 0.55, rot: -0.12 },
+      { text: 'bigbig',  x: W * 0.74, y: H * 0.68, rot:  0.08 },
+      { text: 'turbo',   x: W * 0.12, y: H * 0.22, rot: -0.20 },
+    ];
+    ctx.save();
+    ctx.font         = '9px monospace';
+    ctx.fillStyle    = 'rgba(255,255,255,0.10)';
+    ctx.textAlign    = 'left';
+    ctx.textBaseline = 'middle';
+    for (const h of hints) {
+      ctx.save();
+      ctx.translate(h.x, h.y);
+      ctx.rotate(h.rot);
+      ctx.fillText(h.text, 0, 0);
+      ctx.restore();
+    }
+    ctx.restore();
+
     // Show activation badges for all active codes
     if (codeActivated.length > 0) {
       const badgeText = codeActivated.join('  ');
