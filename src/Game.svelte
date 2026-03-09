@@ -153,7 +153,11 @@
   let launchPadBtn  = null;  // { x, y, w, h } hit area on start screen
 
   // ─── Cheat codes ───────────────────────────────────────────────────────────
-  let noPipesRound      = false;  // if true, no pipes spawn this round
+  let noPipesRound      = false;  // no pipes this round
+  let slowMoRound       = false;  // half speed pipes
+  let ghostRound        = false;  // pass through pipes
+  let bigGapRound       = false;  // huge pipe gaps
+  let turboRound        = false;  // double speed pipes
   let showCodeInput     = false;
   let codeInputValue    = '';
   let codeError         = false;
@@ -162,7 +166,11 @@
   let codeInputEl       = null;   // bind to <input> element
 
   const CHEAT_CODES = {
-    'awesome': () => { noPipesRound = true; return '🎉 NO PIPES MODE!'; },
+    'awesome': () => { noPipesRound = true; return '🎉 NO PIPES!'; },
+    'slowmo':  () => { slowMoRound  = true; return '🐌 SLOW MO!'; },
+    'ghost':   () => { ghostRound   = true; return '👻 GHOST MODE!'; },
+    'bigbig':  () => { bigGapRound  = true; return '🕳️ BIG GAPS!'; },
+    'turbo':   () => { turboRound   = true; return '⚡ TURBO!'; },
   };
 
   function submitCode() {
@@ -204,6 +212,10 @@
     flapCount     = 0;
     wasLaunched   = false;
     noPipesRound  = false;
+    slowMoRound   = false;
+    ghostRound    = false;
+    bigGapRound   = false;
+    turboRound    = false;
     codeActivated = false;
     fishJumpers   = [];
     nextFishScore = 5;
@@ -267,7 +279,7 @@
   // ─── Spawn pipe ────────────────────────────────────────────────────────────
   function spawnPipe() {
     if (noPipesRound) return;  // cheat code: no pipes this round
-    const gap    = gapForScore(score);
+    const gap    = bigGapRound ? H * 0.55 : gapForScore(score);
     const minTop = H * 0.12;
     const maxTop = H * 0.72 - gap;
     const gapTop = minTop + Math.random() * (maxTop - minTop);
@@ -276,6 +288,7 @@
 
   // ─── Collision ─────────────────────────────────────────────────────────────
   function hits(p) {
+    if (ghostRound) return false;  // cheat: pass through everything
     const m  = 6;
     const bl = bird.x - BIRD_SIZE / 2 + m;
     const br = bird.x + BIRD_SIZE / 2 - m;
@@ -306,7 +319,8 @@
 
     for (let i = pipes.length - 1; i >= 0; i--) {
       const p = pipes[i];
-      p.x -= PIPE_SPEED;
+      const speed = turboRound ? PIPE_SPEED * 2.2 : slowMoRound ? PIPE_SPEED * 0.45 : PIPE_SPEED;
+      p.x -= speed;
       if (!p.scored && p.x + PIPE_WIDTH < bird.x) { p.scored = true; score++; }
       if (p.x + PIPE_WIDTH < 0) { pipes.splice(i, 1); continue; }
       if (hits(p)) {
@@ -380,7 +394,9 @@
     ctx.restore();
 
     // Pipes drawn AFTER bird — covers bird on collision (goes into pipe effect)
+    if (ghostRound) ctx.globalAlpha = 0.35;
     pipes.forEach(drawPipe);
+    ctx.globalAlpha = 1;
 
     // Water drawn LAST so it covers the emoji when it sinks below the surface
     const waveOffset = (frame * 0.3) % (Math.PI * 2);
