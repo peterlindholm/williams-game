@@ -163,25 +163,33 @@
   let codeInputValue    = '';
   let codeError         = false;
   let codeButtonRect    = null;   // { x, y, w, h } hit area for code button
-  let codeActivated     = false;  // shows activation badge on start screen
+  let codeActivated     = [];     // array of active code labels shown on start screen
   let codeInputEl       = null;   // bind to <input> element
 
   const CHEAT_CODES = {
-    'awesome': () => { noPipesRound = true; cheatUsed = true; return '🎉 NO PIPES!'; },
-    'slowmo':  () => { slowMoRound  = true; cheatUsed = true; return '🐌 SLOW MO!'; },
-    'ghost':   () => { ghostRound   = true; cheatUsed = true; return '👻 GHOST MODE!'; },
-    'bigbig':  () => { bigGapRound  = true; cheatUsed = true; return '🕳️ BIG GAPS!'; },
-    'turbo':   () => { turboRound   = true; cheatUsed = true; return '⚡ TURBO!'; },
+    'awesome': { label: '🎉 NO PIPES',   apply: () => { noPipesRound = true; } },
+    'slowmo':  { label: '🐌 SLOW MO',    apply: () => { slowMoRound  = true; turboRound  = false; } },
+    'ghost':   { label: '👻 GHOST',      apply: () => { ghostRound   = true; } },
+    'bigbig':  { label: '🕳️ BIG GAPS',  apply: () => { bigGapRound  = true; } },
+    'turbo':   { label: '⚡ TURBO',      apply: () => { turboRound   = true; slowMoRound = false; } },
   };
 
   function submitCode() {
     const key    = codeInputValue.trim().toLowerCase();
-    const action = CHEAT_CODES[key];
-    if (action) {
-      const msg     = action();
-      codeActivated = msg;
-      codeError     = false;
-      showCodeInput = false;
+    const code   = CHEAT_CODES[key];
+    if (code) {
+      code.apply();
+      cheatUsed = true;
+
+      // Remove conflicting labels (slowmo ↔ turbo)
+      if (key === 'turbo')  codeActivated = codeActivated.filter(l => l !== CHEAT_CODES['slowmo'].label);
+      if (key === 'slowmo') codeActivated = codeActivated.filter(l => l !== CHEAT_CODES['turbo'].label);
+
+      // Add label if not already in list
+      if (!codeActivated.includes(code.label)) codeActivated = [...codeActivated, code.label];
+
+      codeError      = false;
+      showCodeInput  = false;
       codeInputValue = '';
     } else {
       codeError = true;
@@ -218,7 +226,7 @@
     bigGapRound   = false;
     turboRound    = false;
     cheatUsed     = false;
-    codeActivated = false;
+    codeActivated = [];
     fishJumpers   = [];
     nextFishScore = 5;
     gameState     = 'start';
@@ -604,17 +612,25 @@
     ctx.textBaseline = 'middle';
     ctx.fillText('🔑 Enter Code', cbX + cbW / 2, cbY + cbH / 2);
 
-    // Show activation badge if code is active
-    if (codeActivated) {
-      ctx.fillStyle = 'rgba(0,200,80,0.85)';
+    // Show activation badges for all active codes
+    if (codeActivated.length > 0) {
+      const badgeText = codeActivated.join('  ');
+      const bFont     = 'bold 12px "Fredoka One"';
+      ctx.font        = bFont;
+      const bW        = Math.max(cbW, ctx.measureText(badgeText).width + 20);
+      const bX        = cbX + cbW / 2 - bW / 2;
+      const bH        = 26;
+      const bY        = cbY - bH - 6;
+
+      ctx.fillStyle = 'rgba(0,200,80,0.88)';
       ctx.beginPath();
-      ctx.roundRect(cbX, cbY - 38, cbW, 30, 8);
+      ctx.roundRect(bX, bY, bW, bH, 8);
       ctx.fill();
       ctx.fillStyle    = 'white';
-      ctx.font         = 'bold 13px "Fredoka One"';
+      ctx.font         = bFont;
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(codeActivated, cbX + cbW / 2, cbY - 23);
+      ctx.fillText(badgeText, cbX + cbW / 2, bY + bH / 2);
     }
   }
 
