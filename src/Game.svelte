@@ -152,6 +152,38 @@
   let wasLaunched   = false; // did the player hit the troll launch pad?
   let launchPadBtn  = null;  // { x, y, w, h } hit area on start screen
 
+  // ─── Cheat codes ───────────────────────────────────────────────────────────
+  let noPipesRound      = false;  // if true, no pipes spawn this round
+  let showCodeInput     = false;
+  let codeInputValue    = '';
+  let codeError         = false;
+  let codeButtonRect    = null;   // { x, y, w, h } hit area for code button
+  let codeActivated     = false;  // shows activation badge on start screen
+  let codeInputEl       = null;   // bind to <input> element
+
+  const CHEAT_CODES = {
+    'awesome game': () => { noPipesRound = true; return '🎉 NO PIPES MODE!'; },
+  };
+
+  function submitCode() {
+    const key    = codeInputValue.trim().toLowerCase();
+    const action = CHEAT_CODES[key];
+    if (action) {
+      const msg     = action();
+      codeActivated = msg;
+      codeError     = false;
+      showCodeInput = false;
+      codeInputValue = '';
+    } else {
+      codeError = true;
+    }
+  }
+
+  function handleCodeKey(e) {
+    if (e.key === 'Enter')  { e.preventDefault(); submitCode(); }
+    if (e.key === 'Escape') { showCodeInput = false; codeError = false; codeInputValue = ''; }
+  }
+
   // ─── Bird ──────────────────────────────────────────────────────────────────
   let bird = { x: 0, y: 0, vy: 0 };
 
@@ -171,6 +203,8 @@
     lastFlapFrame = -1;
     flapCount     = 0;
     wasLaunched   = false;
+    noPipesRound  = false;
+    codeActivated = false;
     fishJumpers   = [];
     nextFishScore = 5;
     gameState     = 'start';
@@ -182,6 +216,18 @@
       const rect = canvas.getBoundingClientRect();
       const px   = (e.clientX - rect.left) * (W / rect.width);
       const py   = (e.clientY - rect.top)  * (H / rect.height);
+
+      // 🔑 Code button check
+      if (codeButtonRect) {
+        const { x, y, w, h } = codeButtonRect;
+        if (px >= x && px <= x + w && py >= y && py <= y + h) {
+          showCodeInput  = true;
+          codeError      = false;
+          codeInputValue = '';
+          setTimeout(() => codeInputEl?.focus(), 50);
+          return;
+        }
+      }
 
       // 🚀 Troll launch pad check — must be before emoji buttons
       if (launchPadBtn) {
@@ -220,6 +266,7 @@
 
   // ─── Spawn pipe ────────────────────────────────────────────────────────────
   function spawnPipe() {
+    if (noPipesRound) return;  // cheat code: no pipes this round
     const gap    = gapForScore(score);
     const minTop = H * 0.12;
     const maxTop = H * 0.72 - gap;
@@ -519,6 +566,38 @@
     ctx.fillText('🚀 DO NOT PRESS', cx, padY + padH / 2);
 
     ctx.restore();
+
+    // 🔑 Code button (bottom-left corner)
+    const cbW = 130, cbH = 36;
+    const cbX = 12;
+    const cbY = H - WATER_HEIGHT - cbH - 10;
+    codeButtonRect = { x: cbX, y: cbY, w: cbW, h: cbH };
+
+    ctx.fillStyle = 'rgba(0,20,60,0.65)';
+    ctx.beginPath();
+    ctx.roundRect(cbX, cbY, cbW, cbH, 8);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth   = 1.5;
+    ctx.stroke();
+    ctx.fillStyle    = 'rgba(255,255,255,0.85)';
+    ctx.font         = 'bold 14px "Fredoka One"';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🔑 Enter Code', cbX + cbW / 2, cbY + cbH / 2);
+
+    // Show activation badge if code is active
+    if (codeActivated) {
+      ctx.fillStyle = 'rgba(0,200,80,0.85)';
+      ctx.beginPath();
+      ctx.roundRect(cbX, cbY - 38, cbW, 30, 8);
+      ctx.fill();
+      ctx.fillStyle    = 'white';
+      ctx.font         = 'bold 13px "Fredoka One"';
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(codeActivated, cbX + cbW / 2, cbY - 23);
+    }
   }
 
   // ─── Game over screen ──────────────────────────────────────────────────────
@@ -847,7 +926,28 @@
 <div class="wrap">
   <canvas bind:this={canvas} on:pointerdown={handlePointer}></canvas>
 
-  <!-- Leaderboard and sign out buttons hidden for now -->
+  {#if showCodeInput}
+  <div class="code-overlay">
+    <div class="code-box">
+      <p class="code-title">🔑 Enter Cheat Code</p>
+      <input
+        bind:this={codeInputEl}
+        bind:value={codeInputValue}
+        on:keydown={handleCodeKey}
+        placeholder="Type code here..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      {#if codeError}
+        <p class="code-error">❌ Wrong code!</p>
+      {/if}
+      <div class="code-actions">
+        <button class="code-ok"     on:click={submitCode}>OK</button>
+        <button class="code-cancel" on:click={() => { showCodeInput = false; codeError = false; codeInputValue = ''; }}>Cancel</button>
+      </div>
+    </div>
+  </div>
+  {/if}
 </div>
 
 <style>
@@ -897,4 +997,77 @@
     color: rgba(255,255,255,0.7);
   }
   .out-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+
+  /* ── Cheat code overlay ── */
+  .code-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.55);
+    z-index: 10;
+  }
+
+  .code-box {
+    background: rgba(0, 20, 60, 0.92);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    min-width: 280px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .code-title {
+    margin: 0;
+    color: #FFD700;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .code-box input {
+    width: 100%;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    box-sizing: border-box;
+  }
+  .code-box input:focus {
+    border-color: #FFD700;
+  }
+  .code-box input::placeholder {
+    color: rgba(255,255,255,0.4);
+  }
+
+  .code-error {
+    margin: 0;
+    color: #FF5252;
+    font-size: 0.9rem;
+  }
+
+  .code-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .code-ok, .code-cancel {
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: opacity 0.15s;
+  }
+  .code-ok     { background: #FFD700; color: #111; }
+  .code-cancel { background: rgba(255,255,255,0.15); color: white; }
+  .code-ok:hover, .code-cancel:hover { opacity: 0.85; }
 </style>
