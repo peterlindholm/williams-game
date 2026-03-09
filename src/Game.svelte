@@ -153,7 +153,6 @@
   let launchPadBtn  = null;  // { x, y, w, h } hit area on start screen
 
   // ─── Cheat codes ───────────────────────────────────────────────────────────
-  let noPipesRound      = false;  // no pipes this round
   let slowMoRound       = false;  // half speed pipes
   let ghostRound        = false;  // pass through pipes
   let bigGapRound       = false;  // huge pipe gaps
@@ -167,7 +166,6 @@
   let codeInputEl       = null;   // bind to <input> element
 
   const CHEAT_CODES = {
-    'awesome': { label: '🎉 NO PIPES',   apply: () => { noPipesRound = true; } },
     'slowmo':  { label: '🐌 SLOW MO',    apply: () => { slowMoRound  = true; turboRound  = false; } },
     'ghost':   { label: '👻 GHOST',      apply: () => { ghostRound   = true; } },
     'bigbig':  { label: '🕳️ BIG GAPS',  apply: () => { bigGapRound  = true; } },
@@ -220,7 +218,6 @@
     lastFlapFrame = -1;
     flapCount     = 0;
     wasLaunched   = false;
-    noPipesRound  = false;
     slowMoRound   = false;
     ghostRound    = false;
     bigGapRound   = false;
@@ -288,7 +285,6 @@
 
   // ─── Spawn pipe ────────────────────────────────────────────────────────────
   function spawnPipe() {
-    if (noPipesRound) return;  // cheat code: no pipes this round
     const gap    = bigGapRound ? H * 0.55 : gapForScore(score);
     const minTop = H * 0.12;
     const maxTop = H * 0.72 - gap;
